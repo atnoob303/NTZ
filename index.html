@@ -36,6 +36,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
 <title>NTZ Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -3322,7 +3323,7 @@ setTimeout(()=>{run();},400);
     applyTheme(theme);
   };
   // Init from saved preference
-  const saved = localStorage.getItem('ntz-theme') || 'system';
+  const saved = localStorage.getItem('ntz-theme') || 'light';
   setTheme(saved);
   // Init lang
   const savedLang = localStorage.getItem('ntz-lang') || 'en';
@@ -3545,7 +3546,6 @@ setTimeout(()=>{run();},400);
     applyShiny(!current);
   };
 
-  // Init từ localStorage, mặc định 'off'
   const saved = localStorage.getItem('ntz-shiny') || 'off';
   applyShiny(saved === 'on');
 })();
