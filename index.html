@@ -1,0 +1,3555 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  ⚠️  LƯU Ý QUAN TRỌNG CHO DEVELOPER                            ║
+  ║                                                                  ║
+  ║  Khi thêm TEXT mới hoặc FRAME/SECTION mới, BẮT BUỘC phải:      ║
+  ║                                                                  ║
+  ║  1. 🌐 NGÔN NGỮ — Thêm key dịch vào cả 2 object EN & VI        ║
+  ║     trong hàm setLang() (tìm: "const T = { en: {...}, vi: {...} }")  ║
+  ║     Sau đó áp dụng bằng querySelector hoặc getElementById.      ║
+  ║                                                                  ║
+  ║  2. 🎨 GIAO DIỆN — Thêm CSS cho [data-theme="dark"] tương ứng   ║
+  ║     (tìm: "DARK MODE" trong <style>) để dark mode hiển thị đúng.║
+  ║                                                                  ║
+  ║  KHÔNG hardcode text tiếng Việt hay tiếng Anh trực tiếp vào HTML! ║
+  ║                                                                  ║
+  ║  3. 🖼️  ICON MỚI (assets/icons/)                                ║
+  ║     shiny.png         — nút Bật/Tắt hiệu ứng Shiny (footer)    ║
+  ║                                                                  ║
+  ║  4. 🔊 SOUND EFFECTS (assets/sfx/)                              ║
+  ║     sfx_hover.mp3         — hover vào card / element            ║
+  ║     sfx_click.mp3         — click nút thông thường              ║
+  ║     sfx_swoosh.mp3        — mở search bar (hero)                ║
+  ║     sfx_ding.mp3          — click chip / nameplate tag          ║
+  ║     sfx_tick.mp3          — click scroll indicator              ║
+  ║     sfx_nav_search.mp3    — mở search ở navbar                  ║
+  ║     sfx_stat.mp3          — hover stat card                     ║
+  ║     sfx_ost_toggle.mp3    — bật/tắt OST player                  ║
+  ║     sfx_ost_prev.mp3      — nút bài trước                       ║
+  ║     sfx_ost_next.mp3      — nút bài tiếp                        ║
+  ║     sfx_ntz_reset.mp3     — click chữ NTZ reset animation       ║
+  ║     sfx_search_close.mp3  — đóng search bar                     ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTZ Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-grad-1: #56ccf2;
+    --bg-grad-2: #2f80ed;
+    --white: #ffffff;
+    --glass: rgba(255,255,255,0.18);
+    --glass-border: rgba(255,255,255,0.38);
+    --text-dark: #1a2340;
+    --text-muted: #6b7a99;
+    --accent: #2f80ed;
+    --card-shadow: 0 8px 40px rgba(47,128,237,0.13);
+    --pill-shadow: 0 4px 32px rgba(47,128,237,0.22);
+    --sheet-bg: #ffffff;
+    --sheet-border: rgba(255,255,255,0.95);
+    --card-bg: rgba(255,255,255,0.85);
+    --card-border: rgba(255,255,255,0.9);
+    --footer-border: rgba(0,0,0,0.08);
+    --social-btn-bg: rgba(0,0,0,0.04);
+    --social-btn-border: rgba(0,0,0,0.10);
+  }
+
+  [data-theme="dark"] {
+    --text-dark: #e8eaf6;
+    --text-muted: #8892aa;
+    --accent: #56ccf2;
+    --card-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    --sheet-bg: #111827;
+    --sheet-border: rgba(255,255,255,0.08);
+    --card-bg: rgba(255,255,255,0.05);
+    --card-border: rgba(255,255,255,0.10);
+    --footer-border: rgba(255,255,255,0.08);
+    --social-btn-bg: rgba(255,255,255,0.07);
+    --social-btn-border: rgba(255,255,255,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+    position: relative;
+    overflow-x: clip;
+  }
+
+  /* ── HERO BG ── */
+  .hero-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: url('NTZ.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.35) 100%);
+  }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: 90%;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(22px) saturate(1.6);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+    border: 1.5px solid rgba(255,255,255,0.48);
+    border-radius: 999px;
+    padding: 0 10px 0 18px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 8px 32px rgba(47,128,237,0.18), 0 1.5px 0 rgba(255,255,255,0.5) inset;
+    gap: 18px;
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .nav-logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #fff 0%, #d0e8ff 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 10px rgba(47,128,237,0.22);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+
+  .nav-logo-text {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 8px rgba(47,128,237,0.3);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    list-style: none;
+    transition: gap 0.35s;
+    flex-shrink: 0;
+  }
+
+  .nav-links a {
+    display: flex;
+    align-items: center;
+    padding: 7px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    transition: background 0.18s, color 0.18s;
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover, .nav-links a.active {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+  }
+
+  .nav-login {
+    background: #fff !important;
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+    padding: 8px 20px !important;
+    box-shadow: 0 2px 12px rgba(47,128,237,0.15);
+    transition: box-shadow 0.18s, transform 0.13s, background 0.35s, color 0.35s !important;
+  }
+
+  .nav-login:hover {
+    background: #fff !important;
+    box-shadow: 0 4px 20px rgba(47,128,237,0.28) !important;
+    transform: translateY(-1px);
+  }
+
+  /* ── HERO SPACE — chứa widget rắn ── */
+  .hero-space {
+    position: relative;
+    z-index: 1;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 80px;
+    padding-bottom: 32px;
+    overflow: visible;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 32px 0;
+  }
+
+  .content-sheet {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 70vh;
+    background: var(--sheet-bg);
+    border-radius: 24px 24px 0 0;
+    border: 1.5px solid var(--sheet-border);
+    border-bottom: none;
+    box-shadow:
+      0 20px 80px rgba(30,80,180,0.18),
+      0 4px 24px rgba(30,80,180,0.10);
+    padding: 56px clamp(16px, 5vw, 64px) 64px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .content-sheet::after {
+    content: none;
+  }
+
+  .content-sheet::before {
+    content: '';
+    position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    width: 44px; height: 3.5px;
+    background: rgba(47,128,237,0.18);
+    border-radius: 999px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(47,128,237,0.08);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(47,128,237,0.16);
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: clamp(22px, 3.5vw, 32px);
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.15;
+    margin-bottom: 7px;
+    letter-spacing: -0.02em;
+  }
+
+  .section-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 36px;
+    max-width: 480px;
+  }
+
+  /* ── GAME GRID ── */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .game-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1.5px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .game-card:hover {
+    transform: translateY(-6px) scale(1.012);
+    box-shadow: 0 18px 54px rgba(47,128,237,0.18);
+  }
+
+  .game-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.25) 100%);
+  }
+
+  .game-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    z-index: 2;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    padding: 3px 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .game-info {
+    padding: 18px 20px 20px;
+  }
+
+  .game-genre {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  .game-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .game-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+
+  .game-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .game-players {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #4caf8a; display: inline-block; }
+
+  .game-btn {
+    background: linear-gradient(135deg, #56ccf2, #2f80ed);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.13s;
+    letter-spacing: 0.03em;
+  }
+
+  .game-btn:hover { opacity: 0.88; transform: scale(0.97); }
+
+  /* ── GAME COLORS ── */
+  .g1 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+  .g2 { background: linear-gradient(135deg, #0f3460 0%, #e94560 100%); }
+  .g3 { background: linear-gradient(135deg, #2d4a22 0%, #56ab2f 100%); }
+  .g4 { background: linear-gradient(135deg, #4a154b 0%, #c471ed 100%); }
+
+  /* ── FOOTER REDESIGN ── */
+  .sheet-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--footer-border);
+  }
+  .footer-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+  /* Brand: logo + tên */
+  .footer-brand {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 1; min-width: 0;
+  }
+  .footer-brand-icon {
+    width: clamp(28px, 3vw, 36px); height: clamp(28px, 3vw, 36px); border-radius: 50%; flex-shrink: 0;
+    background: #1a2340;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #fff;
+    font-family: "Space Mono", monospace; letter-spacing: -1px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  }
+  .footer-brand-name {
+    font-size: clamp(10px, 1.2vw, 15px); font-weight: 800; color: var(--text-dark);
+    font-family: "Space Mono", monospace; letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .footer-brand-desc {
+    font-size: clamp(8px, 0.9vw, 11px); color: var(--text-muted); font-weight: 400; margin-top: 1px; white-space: nowrap;
+  }
+  /* Social buttons */
+  .footer-socials {
+    display: flex; gap: clamp(4px, 0.6vw, 8px); align-items: center; flex-shrink: 0;
+  }
+  .footer-social-btn {
+    width: 34px; height: 34px; border-radius: 999px;
+    background: var(--social-btn-bg);
+    border: 1px solid var(--social-btn-border);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+    text-decoration: none; flex-shrink: 0;
+  }
+  .footer-social-btn:hover {
+    background: rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .footer-social-btn img {
+    width: 16px; height: 16px; object-fit: contain;
+    filter: brightness(0) opacity(0.45);
+    transition: filter 0.18s;
+  }
+  .footer-social-btn:hover img { filter: brightness(0) opacity(0.80); }
+
+  /* Right: OST + copyright */
+  .footer-right {
+    display: flex; align-items: center; gap: clamp(6px, 1vw, 10px); flex-shrink: 0; white-space: nowrap;
+  }
+  .footer-copy-new {
+    font-size: clamp(9px, 1vw, 11.5px); color: var(--text-muted); white-space: nowrap;
+  }
+
+  /* OST toggle: đen thay xanh */
+  .ost-toggle-btn {
+    background: rgba(0,0,0,0.05) !important;
+    border-color: rgba(0,0,0,0.12) !important;
+    color: var(--text-dark) !important;
+  }
+  .ost-toggle-btn:hover {
+    background: rgba(0,0,0,0.09) !important;
+    border-color: rgba(0,0,0,0.22) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+  }
+  .ost-toggle-btn.active {
+    background: rgba(0,0,0,0.08) !important;
+    border-color: rgba(0,0,0,0.28) !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06) !important;
+  }
+  .ost-toggle-dot { background: #aaa !important; }
+  .ost-toggle-btn.active .ost-toggle-dot {
+    background: #1a2340 !important;
+    box-shadow: 0 0 5px rgba(0,0,0,0.25) !important;
+  }
+  .ost-toggle-btn img { filter: brightness(0) opacity(0.5) !important; }
+
+  @media(max-width: 600px){
+    .footer-main { gap: 8px; }
+  }
+
+
+
+  /* ── ONLY ON ROBLOX footer image ── */
+  .footer-onlyon-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 36px;
+    overflow: hidden;
+  }
+
+  .footer-onlyon-img {
+    width: 400px;
+    max-width: 90%;
+    height: 150px;
+    object-fit: contain;
+    filter: brightness(0);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+  }
+
+  .footer-onlyon-img.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Nếu nền tối → đổi ảnh thành trắng */
+  .footer-onlyon-img.on-dark {
+    filter: brightness(0) invert(1);
+  }
+
+  .ost-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(47,128,237,0.08);
+    border: 1px solid rgba(47,128,237,0.18);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.13s, box-shadow 0.18s;
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+  .ost-toggle-btn:hover {
+    background: rgba(47,128,237,0.15);
+    border-color: rgba(47,128,237,0.38);
+    box-shadow: 0 2px 12px rgba(47,128,237,0.15);
+    transform: translateY(-1px);
+  }
+  .ost-toggle-btn:active { transform: scale(0.96); }
+  .ost-toggle-btn.active {
+    background: rgba(47,128,237,0.14);
+    border-color: rgba(47,128,237,0.45);
+    color: #2f80ed;
+    box-shadow: 0 0 0 3px rgba(47,128,237,0.10);
+  }
+  .ost-toggle-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #aac8f0;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .ost-toggle-btn.active .ost-toggle-dot {
+    background: #2f80ed;
+    box-shadow: 0 0 5px rgba(47,128,237,0.6);
+  }
+  .ost-bar {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(16px);
+    transition: opacity 0.30s cubic-bezier(.4,0,.2,1), transform 0.30s cubic-bezier(.34,1.4,.64,1);
+  }
+  .ost-bar.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── NAV ICON MODE ── */
+  .nav-icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    flex-shrink: 0;
+  }
+  .nav-icon img {
+    width: 18px; height: 18px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    display: block;
+  }
+  /* Login icon: nền nút trắng (#fff) ở dark mode → icon phải tối */
+  .nav-login .nav-icon img {
+    filter: brightness(0);
+  }
+  .nav-text { display: inline; }
+
+  /* Search-open: thu nav links thành icon */
+  .navbar.search-open .nav-links .nav-text { display: none !important; }
+  .navbar.search-open .nav-links a { padding: 7px 8px !important; }
+  .navbar.search-open .nav-links .nav-icon {
+    display: flex !important;
+    width: 20px; height: 20px;
+  }
+  .navbar.search-open .nav-links .nav-icon img {
+    width: 18px; height: 18px;
+  }
+
+  /* ── SHINY TOGGLE BUTTON ── */
+  .shiny-toggle-btn {
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.2s, background 0.2s;
+  }
+  .shiny-toggle-btn.shiny-off {
+    opacity: 0.52;
+  }
+  .shiny-toggle-btn.shiny-off #shiny-toggle-slash {
+    height: 150% !important;
+  }
+  .shiny-toggle-btn.shiny-off #shiny-toggle-icon {
+    filter: grayscale(1) opacity(0.5);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    /* Tablet: icon mode luôn */
+    .nav-text { display: none; }
+    .nav-icon { display: flex; }
+    .nav-links a { padding: 7px 8px; }
+  }
+  @media (max-width: 600px) {
+    .content-sheet { padding: 36px 20px 44px; }
+    .games-grid { grid-template-columns: 1fr; }
+    .page-wrap { padding: 0 12px 32px; }
+    .hero-space { min-height: auto; padding-top: 80px; }
+    .nav-logo-text { display: none; }
+    .nav-login .nav-text { display: none; }
+    .nav-login { padding: 8px 10px !important; }
+  }
+
+  /* ── ENTRANCE ANIMATIONS ── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .navbar { animation: navbarSlideUp 0.5s cubic-bezier(.34,1.56,.64,1) both; }
+
+  @keyframes navbarSlideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(28px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .hero-space { animation: slideUp 0.5s 0.08s cubic-bezier(.22,1,.36,1) both; }
+  .content-sheet { animation: slideUp 0.6s 0.18s cubic-bezier(.22,1,.36,1) both; }
+  .game-card:nth-child(1) { animation: slideUp 0.5s 0.30s both; }
+  .game-card:nth-child(2) { animation: slideUp 0.5s 0.38s both; }
+  .game-card:nth-child(3) { animation: slideUp 0.5s 0.46s both; }
+  .game-card:nth-child(4) { animation: slideUp 0.5s 0.54s both; }
+
+  /* ── SNAKE WIDGET styles (scoped) ── */
+  .wrap{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:520px;gap:0;user-select:none;padding:20px 24px 22px;
+    background:transparent;
+    border-radius:16px;position:relative;overflow:visible;
+    width:92%;margin:0 auto;box-sizing:border-box;
+  }
+  .glass-layer{position:absolute;inset:0;pointer-events:none;overflow:visible;border-radius:16px;z-index:0;}
+  .shard{
+    position:absolute;
+    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+    background:rgba(255,255,255,0.04);overflow:hidden;
+  }
+  .nameplate-wrap{
+    position:relative;z-index:10;
+    margin-bottom:6px;
+    width:85%;
+    height:38px;
+  }
+  .nameplate{
+    display:flex;align-items:center;gap:0;
+    background:rgba(255,255,255,0.14);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.32);
+    border-radius:40px;
+    padding:7px 18px;
+    cursor:pointer;
+    opacity:0;transform:translateY(-10px);
+    transition:opacity 0.38s cubic-bezier(.4,0,.2,1), transform 0.38s cubic-bezier(.4,0,.2,1), background 0.2s, box-shadow 0.2s;
+    box-shadow:0 2px 16px rgba(0,0,0,0.10);
+    user-select:none;
+    width:100%;box-sizing:border-box;justify-content:space-between;
+  }
+  .nameplate.hidden{
+    opacity:0 !important;pointer-events:none;
+    transform:translateY(6px) scale(0.97) !important;
+    transition:opacity 0.22s ease, transform 0.22s ease !important;
+  }
+  .wrap:hover .nameplate{opacity:1;transform:translateY(0);}
+  .nameplate:hover{ background:rgba(255,255,255,0.22); box-shadow:0 4px 20px rgba(0,0,0,0.16); }
+  .nameplate-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#7ee8fa;box-shadow:0 0 6px #7ee8fa;flex-shrink:0;
+  }
+  .nameplate-name{
+    font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:0.18em;text-transform:uppercase;color:#fff;
+  }
+  .nameplate-sep{width:1px;height:14px;background:rgba(255,255,255,0.25);flex-shrink:0;}
+  .nameplate-tag{
+    font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;
+    color:rgba(255,255,255,0.70);letter-spacing:0.04em;
+    cursor:pointer;transition:color 0.15s;
+  }
+  .nameplate-tag:hover{color:#fff;}
+  .nameplate-search-icon{font-size:12px;color:rgba(255,255,255,0.50);margin-left:2px;}
+  .search-bar{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);
+    border:1.5px solid rgba(255,255,255,0.30);
+    border-radius:40px;
+    padding:7px 14px 7px 14px;
+    box-shadow:0 4px 24px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.25) inset;
+    width:100%;box-sizing:border-box;
+    opacity:0;pointer-events:none;
+    transform:translateY(-8px) scale(0.96);
+    transition:opacity 0.30s cubic-bezier(.4,0,.2,1), transform 0.30s cubic-bezier(.34,1.4,.64,1);
+    position:absolute;top:0;left:0;
+  }
+  .search-bar.active{
+    opacity:1;pointer-events:auto;
+    transform:translateY(0) scale(1);
+  }
+  .search-bar input{
+    background:transparent;border:none;outline:none;
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;
+    color:#fff;flex:1;letter-spacing:0.02em;
+  }
+  .search-bar input::placeholder{color:rgba(255,255,255,0.45);}
+  .search-icon{font-size:14px;color:rgba(255,255,255,0.55);flex-shrink:0;}
+  .search-close{
+    background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:50%;
+    width:22px;height:22px;cursor:pointer;color:#fff;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+    transition:background 0.15s;flex-shrink:0;
+  }
+  .search-close:hover{background:rgba(255,255,255,0.22);}
+  .search-suggestions{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(32px) saturate(1.8);-webkit-backdrop-filter:blur(32px) saturate(1.8);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:14px;
+    padding:6px;
+    display:flex;flex-direction:column;gap:2px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.18) inset;
+    z-index:20;
+    width:100%;box-sizing:border-box;
+    opacity:0;pointer-events:none;
+    transform:translateY(-10px) scale(0.97);
+    transition:opacity 0.30s cubic-bezier(.4,0,.2,1) 0.05s, transform 0.30s cubic-bezier(.34,1.4,.64,1) 0.05s;
+  }
+  .search-suggestions.active{
+    opacity:1;pointer-events:auto;
+    transform:translateY(0) scale(1);
+  }
+  .suggestion-item{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:10px;cursor:pointer;
+    transition:background 0.15s;
+  }
+  .suggestion-item:hover{background:rgba(255,255,255,0.10);}
+  .sug-icon{
+    width:28px;height:28px;border-radius:8px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+  }
+  .sug-icon.discord, .sug-icon.roblox, .sug-icon.youtube { background: none; }
+  .sug-icon img { filter: brightness(0) invert(1); }
+  .sug-label{
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:#fff;
+  }
+  .sug-sub{
+    font-family:'Outfit',sans-serif;font-size:10px;color:rgba(255,255,255,0.45);
+    margin-left:auto;white-space:nowrap;
+  }
+  #svg{position:relative;z-index:1;}
+  .info{
+    position:relative;z-index:2;
+    width:100%;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    margin-top:4px;
+    opacity:0;transform:translateY(14px);
+    transition:opacity 0.42s ease 0.18s, transform 0.42s ease 0.18s;
+  }
+  .wrap:hover .info{opacity:1;transform:translateY(0);}
+  .studio-desc{
+    font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+    color:rgba(255,255,255,0.82);text-align:center;
+    letter-spacing:0.01em;line-height:1.5;
+    font-style:italic;
+    margin-bottom:2px;
+  }
+  .mid-row{
+    display:flex;gap:14px;width:100%;align-items:flex-start;
+  }
+  .notif-card{
+    background:rgba(255,255,255,0.11);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.24);
+    border-radius:14px 0 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    transition:background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+    cursor:default;
+  }
+  .notif-card:hover{
+    background:rgba(255,255,255,0.18);
+    border-color:rgba(255,255,255,0.45);
+    box-shadow:0 8px 28px rgba(0,0,0,0.18), 0 0 18px rgba(255,255,255,0.12);
+    transform:translateY(-3px);
+  }
+  .notif-info-bar{
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-radius:999px;
+    margin:8px 8px 0 8px;
+    padding:4px 10px 4px 4px;
+    display:flex;align-items:center;gap:7px;
+    align-self:flex-start;
+  }
+  .notif-avatar{
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg,#fff 0%,#b3e5fc 100%);
+    border:2px solid rgba(255,255,255,0.65);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-shrink:0;
+    box-shadow:0 2px 12px rgba(0,0,0,0.18);
+  }
+  .notif-meta{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+  .notif-owner{
+    font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+    color:#fff;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;
+  }
+  .notif-role{
+    font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;
+    color:rgba(255,255,255,0.50);white-space:nowrap;
+  }
+  .notif-body{
+    font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:400;
+    color:rgba(255,255,255,0.85);line-height:1.55;
+    padding:10px 12px 6px;
+    flex:1;
+  }
+  .notif-date{
+    font-family:'Space Mono',monospace;font-size:8.5px;
+    color:rgba(255,255,255,0.38);letter-spacing:0.06em;
+    border-top:1px solid rgba(255,255,255,0.10);
+    padding:6px 12px 10px;
+  }
+  .chip-row{
+    display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+    flex-shrink:0;
+  }
+  .chip-item{
+    display:flex;align-items:center;gap:8px;
+  }
+  .chip-item:nth-child(1){ margin-left:0; }
+  .chip-item:nth-child(2){ margin-left:20px; }
+  .chip-item:nth-child(3){ margin-left:20px; }
+  .chip-item:nth-child(4){ margin-left:0; }
+  .chip-icon-circle{
+    width:36px;height:36px;border-radius:50%;flex-shrink:0;
+    background:rgba(255,255,255,0.20);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1.5px solid rgba(255,255,255,0.38);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    transition:transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s;
+  }
+  .chip-icon-circle img {
+    filter: brightness(0) invert(1);
+  }
+  .chip{
+    font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:0.02em;
+    border:none;border-radius:999px;
+    padding:10px 36px;
+    cursor:pointer;
+    background:#fff;color:#1a2233;
+    box-shadow:0 2px 10px rgba(0,0,0,0.18);
+    transition:transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
+    white-space:nowrap;
+    min-width:160px;
+  }
+  .chip-item:hover .chip{
+    transform:translateX(8px);
+    box-shadow:0 0 22px rgba(255,255,255,0.60), 0 4px 18px rgba(0,0,0,0.20);
+  }
+  .chip-item:hover .chip-icon-circle{
+    transform:translateX(8px);
+    box-shadow:0 0 14px rgba(255,255,255,0.45);
+  }
+  .chip-item:active .chip{ transform:translateX(4px) scale(0.97); }
+  .chip-item:active .chip-icon-circle{ transform:translateX(4px); }
+  .stats-row{
+    display:flex;gap:14px;width:100%;
+  }
+  .stat-card{
+    flex:1;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:20px;
+    padding:14px;
+    display:flex;flex-direction:row;align-items:center;gap:14px;
+    height:140px;box-sizing:border-box;
+    transition:background 0.25s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease, border-color 0.25s ease;
+    cursor:default;
+  }
+  .stat-card:hover{
+    background:rgba(255,255,255,0.16);
+    border-color:rgba(255,255,255,0.40);
+    transform:translateY(-4px) scale(1.03);
+    box-shadow:0 12px 32px rgba(0,0,0,0.20), 0 0 20px rgba(255,255,255,0.12);
+  }
+  .stat-icon-circle{
+    width:105px;height:105px;flex-shrink:0;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1.5px solid rgba(255,255,255,0.35);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.3) inset;
+  }
+  .stat-icon-circle img{
+    width:94px;height:94px;object-fit:contain;
+    filter:brightness(0) invert(1);
+  }
+  .stat-text{
+    display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  }
+  .stat-num{
+    font-family:'Space Mono',monospace;font-size:28px;font-weight:700;
+    color:#fff;letter-spacing:0.02em;line-height:1;
+  }
+  .stat-label{
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;
+    color:rgba(255,255,255,0.55);letter-spacing:0.08em;text-transform:uppercase;
+  }
+  .ctrl-row{
+    display:flex;gap:10px;align-items:center;
+    position:relative;z-index:2;
+    margin-top:4px;
+  }
+  .scroll-indicator{
+    cursor:pointer;
+    opacity:0.7;
+    transition:opacity 0.2s, transform 0.2s;
+    animation: scrollBounce 1.8s ease-in-out infinite;
+  }
+  .scroll-indicator:hover{ opacity:1; transform:scale(1.1); }
+  @keyframes scrollBounce{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(5px); }
+  }
+
+  /* ── OST FLOATING BAR (bottom) ── */
+  .ost-bar{
+    position:fixed;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:999;
+    width:min(720px, calc(100vw - 32px));
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(32px) saturate(1.8);
+    -webkit-backdrop-filter:blur(32px) saturate(1.8);
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:999px;
+    padding:8px 14px 8px 10px;
+    box-sizing:border-box;
+    display:flex;align-items:center;gap:10px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.22) inset;
+    transition:box-shadow 0.25s, border-color 0.25s, background 0.25s;
+  }
+  .ost-bar:hover{
+    background:rgba(255,255,255,0.15);
+    border-color:rgba(255,255,255,0.38);
+    box-shadow:0 10px 48px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.28) inset;
+  }
+  .ost-disc{
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05));
+    border:1.5px solid rgba(255,255,255,0.28);
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  }
+  .ost-disc.spinning{ animation:ostSpin 3s linear infinite; }
+  @keyframes ostSpin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  .ost-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+  .ost-label{
+    font-family:'Space Mono',monospace;font-size:7.5px;font-weight:700;
+    color:rgba(255,255,255,0.40);letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .ost-title{
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
+    color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .ost-controls{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+  .ost-btn{
+    background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);
+    border-radius:50%;width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:#fff;font-size:11px;
+    transition:background 0.15s,transform 0.13s;flex-shrink:0;
+  }
+  .ost-btn:hover{background:rgba(255,255,255,0.22);transform:scale(1.1);}
+  .ost-btn.play{
+    width:30px;height:30px;font-size:13px;
+    background:rgba(255,255,255,0.18);
+    border-color:rgba(255,255,255,0.35);
+  }
+  .ost-btn.play:hover{background:rgba(255,255,255,0.32);}
+  /* ── OST SEEK BAR ── */
+  .ost-progress-wrap {
+    position: relative;
+    width: 90px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .ost-seek {
+    position: absolute;
+    width: 100%; height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    margin: 0; padding: 0;
+    -webkit-appearance: none; appearance: none;
+  }
+  .ost-progress-track {
+    width: 100%; height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 99px;
+    overflow: hidden;
+    pointer-events: none;
+    transition: height 0.15s, background 0.2s;
+  }
+  .ost-progress-wrap:hover .ost-progress-track {
+    height: 5px;
+    background: rgba(255,255,255,0.22);
+  }
+  .ost-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7ee8fa, #80ff72);
+    border-radius: 99px;
+    width: 0%;
+    pointer-events: none;
+    transition: width 0.25s linear;
+  }
+  .ost-bar.light-mode .ost-progress-track { background: rgba(0,0,0,0.12) !important; }
+  .ost-bar.light-mode .ost-progress-fill { background: linear-gradient(90deg,#2f80ed,#56ccf2) !important; }
+  .ost-dur{
+    font-family:'Space Mono',monospace;font-size:9px;
+    color:rgba(255,255,255,0.38);flex-shrink:0;white-space:nowrap;
+  }
+  .ost-sep{width:1px;height:18px;background:rgba(255,255,255,0.14);flex-shrink:0;}
+  .ost-vol-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+  .ost-vol-icon{font-size:12px;color:rgba(255,255,255,0.50);cursor:pointer;flex-shrink:0;}
+  .ost-vol-slider{
+    width:60px;height:3px;-webkit-appearance:none;appearance:none;
+    background:rgba(255,255,255,0.15);border-radius:99px;outline:none;cursor:pointer;
+  }
+  .ost-vol-slider::-webkit-slider-thumb{
+    -webkit-appearance:none;width:10px;height:10px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* ── OST BAR ADAPTIVE COLOR ── */
+  .ost-bar {
+    transition: background 0.4s ease, border-color 0.4s ease,
+                box-shadow 0.4s ease, opacity 0.30s cubic-bezier(.4,0,.2,1),
+                transform 0.30s cubic-bezier(.34,1.4,.64,1);
+  }
+  .ost-bar.light-mode {
+    border-color: rgba(0,0,0,0.12) !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.5) inset !important;
+  }
+  .ost-bar.light-mode .ost-label,
+  .ost-bar.light-mode .ost-dur { color: rgba(0,0,0,0.45) !important; }
+  .ost-bar.light-mode .ost-title { color: #1a2340 !important; }
+  .ost-bar.light-mode .ost-btn { color: #1a2340 !important; background: rgba(0,0,0,0.06) !important; border-color: rgba(0,0,0,0.12) !important; }
+  .ost-bar.light-mode .ost-vol-icon { color: rgba(0,0,0,0.45) !important; }
+  .ost-bar.light-mode .ost-sep { background: rgba(0,0,0,0.12) !important; }
+  .ost-bar.light-mode .ost-disc { border-color: rgba(0,0,0,0.15) !important; }
+  /* Icons: dark mode → trắng, light mode → đen */
+  .ost-bar .ost-disc img,
+  .ost-bar .ost-btn img,
+  .ost-bar .ost-vol-icon img { filter: brightness(0) invert(1); }
+  .ost-bar.light-mode .ost-disc img,
+  .ost-bar.light-mode .ost-btn img,
+  .ost-bar.light-mode .ost-vol-icon img { filter: brightness(0) !important; }
+  .ost-vol-slider { accent-color: rgba(255,255,255,0.7); }
+  .ost-bar.light-mode .ost-vol-slider { accent-color: #2f80ed !important; }
+
+  /* ── SEARCH OVERLAY ── */
+  #search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(0,0,0,0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    pointer-events: none;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  #search-overlay.active {
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: auto;
+  }
+
+  /* ── NAVBAR SEARCH ── */
+  /* Search wrap luôn hiện, flex:1 chiếm khoảng trống giữa logo và nav-links */
+  .nav-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    margin: 0 12px;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    overflow: visible;
+  }
+
+  /* Pill: luôn hiện, chiếm full width của wrap */
+  .nav-search-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.30);
+    border-radius: 999px;
+    padding: 7px 16px;
+    cursor: pointer;
+    width: 100%; box-sizing: border-box;
+    transition: background 0.18s, box-shadow 0.18s, opacity 0.24s, transform 0.24s;
+    opacity: 0; pointer-events: none; transform: scale(0.96);
+    white-space: nowrap; overflow: hidden;
+    height: 36px;
+  }
+  .nav-search-pill.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
+  .nav-search-pill:hover { background: rgba(255,255,255,0.22); box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+  .nav-search-pill .pill-icon { font-size: 13px; flex-shrink: 0; opacity: 0.7; }
+  .nav-search-pill .nav-search-text {
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 400;
+    color: rgba(255,255,255,0.60); letter-spacing: 0.01em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+
+  /* Active bar: overlay lên pill khi đang gõ */
+  .nav-search-active {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.22);
+    border: 1.5px solid rgba(255,255,255,0.50);
+    border-radius: 999px;
+    padding: 7px 16px;
+    width: 100%; box-sizing: border-box; height: 36px;
+    opacity: 0; pointer-events: none; transform: scale(0.97);
+    transition: opacity 0.25s, transform 0.25s cubic-bezier(.34,1.4,.64,1);
+    position: absolute; top: 0; left: 0;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+  }
+  .nav-search-active.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
+  .nav-search-active .search-icon { font-size: 13px; color: rgba(255,255,255,0.55); flex-shrink: 0; }
+  .nav-search-active input {
+    background: transparent; border: none; outline: none;
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 400;
+    color: #fff; flex: 1; letter-spacing: 0.01em; min-width: 0;
+  }
+  .nav-search-active input::placeholder { color: rgba(255,255,255,0.45); }
+  .nav-search-close {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 50%;
+    width: 20px; height: 20px; cursor: pointer; color: #fff; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s; flex-shrink: 0; line-height: 1;
+  }
+  .nav-search-close:hover { background: rgba(255,255,255,0.28); }
+
+  /* Light mode */
+  .navbar.light-mode .nav-search-pill { background: rgba(0,0,0,0.06) !important; border-color: rgba(0,0,0,0.13) !important; }
+  .navbar.light-mode .nav-search-pill .nav-search-text { color: rgba(26,35,64,0.50) !important; }
+  .navbar.light-mode .nav-search-active { background: rgba(0,0,0,0.06) !important; border-color: rgba(26,35,64,0.20) !important; box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important; }
+  .navbar.light-mode .nav-search-active input { color: #1a2340 !important; }
+  .navbar.light-mode .nav-search-active input::placeholder { color: rgba(26,35,64,0.38) !important; }
+  .navbar.light-mode .nav-search-active .search-icon { color: rgba(26,35,64,0.45) !important; }
+  .navbar.light-mode .nav-search-close { color: #1a2340 !important; background: rgba(0,0,0,0.07) !important; border-color: rgba(0,0,0,0.13) !important; }
+
+  /* Suggestions dropdown */
+  .nav-suggestions {
+    position: fixed;
+    top: 80px; /* dưới navbar */
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px) scale(0.97);
+    width: 88%; /* cùng độ rộng navbar (90%) trừ padding */
+    max-width: 1100px;
+    background: rgba(20, 24, 40, 0.55);
+    backdrop-filter: blur(40px) saturate(2); -webkit-backdrop-filter: blur(40px) saturate(2);
+    border: 1px solid rgba(255,255,255,0.18); border-radius: 20px;
+    padding: 8px; display: flex; flex-direction: column; gap: 2px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.28s cubic-bezier(.34,1.2,.64,1);
+  }
+  .nav-suggestions.visible {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  /* Light mode: nền sáng trong suốt, chữ tối */
+  .navbar.light-mode ~ * .nav-suggestions,
+  .nav-suggestions.light-mode {
+    background: rgba(255,255,255,0.60) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+  }
+  .nav-sug-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .nav-sug-item:hover { background: rgba(255,255,255,0.12); }
+  .nav-sug-icon {
+    width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; overflow: hidden; background: none;
+  }
+  .nav-sug-icon img { width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1); }
+  .nav-sug-label { font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; color:#fff; transition: color 0.2s; }
+  .nav-sug-sub { font-family:'Outfit',sans-serif; font-size:11px; color:rgba(255,255,255,0.45); margin-left:auto; white-space:nowrap; transition: color 0.2s; }
+  /* Light mode text */
+  .nav-suggestions.light-mode .nav-sug-label { color: #1a2340 !important; }
+  .nav-suggestions.light-mode .nav-sug-sub { color: rgba(26,35,64,0.50) !important; }
+  .nav-suggestions.light-mode .nav-sug-icon img { filter: brightness(0) !important; }
+  .nav-suggestions.light-mode .nav-sug-item:hover { background: rgba(0,0,0,0.06) !important; }
+
+  /* Nav links: co dãn theo màn hình */
+  /* >= 900px: hiện full text */
+  /* 640-899px: icon only */
+  /* < 640px: ẩn search text, giữ icon */
+  @media(max-width: 600px) {
+    .nav-search-pill .nav-search-text { display: none; }
+    .nav-search-pill { justify-content: center; padding: 7px 10px; }
+  }
+  @media(max-width: 380px) {
+    .nav-search-wrap { display: none; }
+  }
+
+
+    /* ── NAV DROPDOWN BUTTONS ── */
+  .nav-dropdown-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .nav-dropdown-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px; font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 0.02em;
+    transition: background 0.18s, border-color 0.18s, transform 0.13s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .nav-dropdown-btn:hover {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.45);
+  }
+  .nav-dropdown-btn:active { transform: scale(0.96); }
+  .nav-dropdown-btn .nd-arrow {
+    font-size: 9px; opacity: 0.6;
+    transition: transform 0.2s;
+  }
+  .nav-dropdown-wrap.open .nd-arrow { transform: rotate(180deg); }
+
+  /* Dropdown panel */
+  .nav-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(32px);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    padding: 6px;
+    min-width: 160px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0; pointer-events: none;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition: opacity 0.22s, transform 0.22s cubic-bezier(.34,1.4,.64,1);
+    z-index: 300;
+  }
+  .nav-dropdown-wrap.open .nav-dropdown-panel {
+    opacity: 1; pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+  .nd-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: #1a2340;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .nd-item:hover { background: rgba(0,0,0,0.05); }
+  .nd-item.active {
+    background: rgba(26,35,64,0.07);
+    font-weight: 700;
+  }
+  .nd-item .nd-check {
+    margin-left: auto;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .nd-item .nd-check svg { display: block; }
+  .nd-item.active .nd-check { opacity: 1; }
+  [data-theme="dark"] .nd-item.active .nd-check svg path { stroke: #56ccf2; }
+  .nd-item .nd-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nd-sep {
+    height: 1px; background: rgba(0,0,0,0.07);
+    margin: 4px 6px;
+  }
+  .nd-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: rgba(26,35,64,0.40);
+    letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 6px 12px 2px;
+  }
+
+  /* Footer dropdown: mở lên trên */
+  .footer-dropdown-panel {
+    top: auto !important;
+    bottom: calc(100% + 8px) !important;
+    transform-origin: bottom right !important;
+    transform: translateY(8px) scale(0.97) !important;
+  }
+  .nav-dropdown-wrap.open .footer-dropdown-panel {
+    transform: translateY(0) scale(1) !important;
+  }
+
+  /* Divider | */
+  .nav-divider {
+    color: rgba(255,255,255,0.25);
+    font-size: 14px;
+    padding: 0 2px;
+    list-style: none;
+    user-select: none;
+    display: flex; align-items: center;
+  }
+  .navbar.light-mode .nav-divider { color: rgba(0,0,0,0.15) !important; }
+
+  /* Icon-only button tròn */
+  .nav-icon-btn {
+    width: 32px !important; height: 32px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    border: 1px solid rgba(255,255,255,0.28) !important;
+    background: rgba(255,255,255,0.12) !important;
+  }
+  .nav-icon-btn:hover {
+    background: rgba(255,255,255,0.22) !important;
+  }
+  /* Footer light theme: nền xám nhạt, viền tối */
+  .sheet-footer .nav-icon-btn {
+    border: 1px solid rgba(0,0,0,0.12) !important;
+    background: rgba(0,0,0,0.04) !important;
+  }
+  .sheet-footer .nav-icon-btn:hover {
+    background: rgba(0,0,0,0.09) !important;
+  }
+  /* Footer dark theme: nền trắng mờ, viền trắng */
+  [data-theme="dark"] .sheet-footer .nav-icon-btn {
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    background: rgba(255,255,255,0.08) !important;
+  }
+  [data-theme="dark"] .sheet-footer .nav-icon-btn:hover {
+    background: rgba(255,255,255,0.14) !important;
+  }
+  .nd-btn-img {
+    width: 16px; height: 16px; object-fit: contain;
+    filter: brightness(0) invert(1);
+    display: block;
+  }
+  /* Navbar light-mode (scroll qua sheet sáng) → icon tối */
+  .navbar.light-mode .nd-btn-img { filter: brightness(0) !important; }
+  /* Footer: nền sáng (light theme) → icon tối, nền tối (dark theme) → icon trắng */
+  .sheet-footer .nd-btn-img { filter: brightness(0) opacity(0.55); }
+  [data-theme="dark"] .sheet-footer .nd-btn-img { filter: brightness(0) invert(1) opacity(0.7) !important; }
+
+  /* Icon trong dropdown item */
+  .nd-icon-img {
+    width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .nd-icon-img img {
+    width: 16px; height: 16px; object-fit: contain;
+    filter: brightness(0) opacity(0.6);
+  }
+  /* Footer dropdown items: dark theme → icon trắng */
+  [data-theme="dark"] .sheet-footer .nd-icon-img img { filter: brightness(0) invert(1) opacity(0.6) !important; }
+
+  /* Light mode cho nav dropdown btn */
+  .navbar.light-mode .nav-dropdown-btn {
+    color: rgba(26,35,64,0.80) !important;
+    background: rgba(0,0,0,0.05) !important;
+    border-color: rgba(0,0,0,0.12) !important;
+  }
+  .navbar.light-mode .nav-dropdown-btn:hover {
+    background: rgba(0,0,0,0.09) !important;
+    border-color: rgba(0,0,0,0.20) !important;
+  }
+
+  /* ── NAVBAR LIGHT MODE (khi scroll qua content trắng) ── */
+  .navbar.light-mode {
+    background: rgba(255,255,255,0.72) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 1.5px 0 rgba(255,255,255,0.9) inset !important;
+  }
+  .navbar.light-mode .nav-logo-text { color: #1a2340 !important; text-shadow: none !important; }
+  .navbar.light-mode .nav-links a { color: rgba(26,35,64,0.75) !important; }
+  .navbar.light-mode .nav-links a:hover,
+  .navbar.light-mode .nav-links a.active { background: rgba(0,0,0,0.07) !important; color: #1a2340 !important; }
+  .navbar.light-mode .nav-login { background: #1a2340 !important; color: #fff !important; box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important; }
+  .navbar.light-mode .nav-login:hover { background: #2f80ed !important; color: #fff !important; }
+  .navbar.light-mode .nav-login .nav-text { color: #fff !important; }
+  .navbar.light-mode .nav-icon img { filter: brightness(0) !important; }
+  .navbar.light-mode .nav-login .nav-icon img { filter: brightness(0) invert(1) !important; }
+  .navbar.light-mode .nav-search-pill { border-color: rgba(0,0,0,0.15) !important; background: rgba(0,0,0,0.06) !important; }
+  .navbar.light-mode .nav-search-pill span,
+  .navbar.light-mode .nav-search-pill .nav-search-text { color: rgba(26,35,64,0.55) !important; }
+  .navbar.light-mode .nav-logo-icon { box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important; }
+  /* Search icon: đen trên nền sáng */
+  .navbar.light-mode .pill-icon img,
+  .navbar.light-mode .nav-search-active .search-icon img {
+    filter: brightness(0) !important;
+    opacity: 0.55 !important;
+  }
+
+  /* ── RANK LEGEND ── */
+  .rank-legend {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    max-height: 200px;
+    opacity: 1;
+    transition: opacity 0.3s ease, max-height 0.4s ease, margin-top 0.4s ease;
+  }
+  [data-shiny="off"] .rank-legend {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    pointer-events: none !important;
+  }
+  .rank-legend-title {
+    width: 100%;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .rank-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    height: 34px;
+  }
+  .rank-pill-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    height: 100%;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    border-right: 1.5px solid var(--card-border);
+  }
+  .rank-pill-label {
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    line-height: 1.25;
+  }
+  .rank-pill-label strong {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dark);
+    white-space: nowrap;
+  }
+  .rank-pill-label span {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── INTRO SECTION ── */
+  .intro-section {
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .intro-section::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+  .intro-heading-outer {
+    /* tự nhiên, không float */
+  }
+  .intro-right {
+    float: right;
+    width: 70%;
+    margin-left: 32px;
+    margin-bottom: 16px;
+  }
+  .intro-left {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    /* chảy tự nhiên xung quanh video */
+  }
+  .intro-left p { margin-bottom: 16px; }
+  .intro-left p:last-child { margin-bottom: 0; }
+  .intro-left strong { color: var(--text-dark); font-weight: 700; }
+  .intro-left em.it { font-style: italic; color: var(--accent); font-weight: 500; }
+  .intro-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+    margin-top: 0;
+  }
+  .intro-welcome {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-left: 4px;
+    margin-bottom: 2px;
+  }
+  .intro-tontz {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .intro-ntz {
+    font-size: clamp(32px, 7vw, 110px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.85;
+    font-family: 'Outfit', sans-serif;
+    background-image: linear-gradient(90deg, #2a2a2a, #2a2a2a, #888, #c0c0c0, #888, #2a2a2a, #2a2a2a, #888, #c0c0c0, #888, #2a2a2a);
+    background-size: 300% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shiny-sweep 4s linear infinite;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.18));
+  }
+  .intro-to {
+    font-size: clamp(12px, 2vw, 28px);
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    padding-top: 14px;
+    font-family: 'Outfit', sans-serif;
+  }
+  .intro-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .intro-desc p { margin-bottom: 16px; }
+  .intro-desc p:last-child { margin-bottom: 0; }
+  .intro-desc strong { color: var(--text-dark); font-weight: 700; }
+  .intro-desc em.it { font-style: italic; color: var(--accent); font-weight: 500; }
+  mark.hl {
+    background: rgba(47,128,237,0.10);
+    color: var(--accent);
+    font-weight: 700;
+    font-style: normal;
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+  mark.hl.dark { background: rgba(220,50,50,0.10); color: #c0392b; }
+  [data-theme="dark"] mark.hl { background: rgba(86,204,242,0.12); color: #56ccf2; }
+  [data-theme="dark"] mark.hl.dark { background: rgba(220,50,50,0.15); color: #e57373; }
+  .intro-section::after { content: ''; display: table; clear: both; }
+
+  /* ── GAME NAME SHINY TAGS ── */
+  @keyframes shiny-sweep {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── SHINY OFF MODE ── */
+  [data-shiny="off"] .gname {
+    animation: none !important;
+    background-image: none !important;
+    -webkit-text-fill-color: currentColor !important;
+    background-clip: unset !important;
+    -webkit-background-clip: unset !important;
+    color: var(--text-dark) !important;
+    filter: none !important;
+    opacity: 0.75;
+  }
+  [data-shiny="off"] .intro-ntz {
+    animation: none !important;
+    background-image: none !important;
+    -webkit-text-fill-color: var(--text-dark) !important;
+    background-clip: unset !important;
+    -webkit-background-clip: unset !important;
+    filter: none !important;
+  }
+  [data-shiny="off"] mark.hl {
+    background: rgba(47,128,237,0.08) !important;
+  }
+  [data-shiny="off"] mark.hl.dark {
+    background: rgba(220,50,50,0.08) !important;
+  }
+  .gname {
+    display: inline;
+    font-weight: 800;
+    font-style: normal;
+    border-radius: 5px;
+    padding: 1px 6px;
+    background-size: 200% auto;
+    animation: shiny-sweep 3s linear infinite;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+  }
+  /* Couser Game — đỏ máu ↔ tím hồng */
+  .gname.couser {
+    background-image: linear-gradient(90deg, #8b0000, #8b0000, #e040fb, #8b0000, #8b0000, #e040fb, #8b0000);
+    filter: drop-shadow(0 0 6px rgba(192,57,43,0.60));
+  }
+  /* Legend Warriors — vàng ↔ cam rực */
+  .gname.legend {
+    background-image: linear-gradient(90deg, #f0c040, #f0c040, #ff6d00, #f0c040, #f0c040, #ff6d00, #f0c040);
+    filter: drop-shadow(0 0 6px rgba(240,192,64,0.60));
+  }
+  /* Death Spirit — xanh lá ↔ xanh cyan */
+  .gname.death {
+    background-image: linear-gradient(90deg, #2e7d52, #2e7d52, #00e5ff, #2e7d52, #2e7d52, #00e5ff, #2e7d52);
+    filter: drop-shadow(0 0 6px rgba(46,125,82,0.60));
+  }
+  /* NTZ Items — vàng nhạt ↔ hồng pastel */
+  .gname.ntzitems {
+    background-image: linear-gradient(90deg, #d4b44a, #d4b44a, #ff80ab, #d4b44a, #d4b44a, #ff80ab, #d4b44a);
+    filter: drop-shadow(0 0 5px rgba(212,180,74,0.55));
+  }
+  /* BUIRD — xanh dương ↔ xanh lá neon */
+  .gname.buird {
+    background-image: linear-gradient(90deg, #2f80ed, #2f80ed, #69ff47, #2f80ed, #2f80ed, #69ff47, #2f80ed);
+    filter: drop-shadow(0 0 7px rgba(47,128,237,0.65));
+  }
+
+  /* ── PERSON / TEAM SHINY ── */
+  /* Dũng — bạch kim trắng ↔ xanh dương | OWNER */
+  .gname.platinum {
+    background-image: linear-gradient(90deg, #8ca8c8, #8ca8c8, #2f80ed, #8ca8c8, #8ca8c8, #2f80ed, #8ca8c8);
+    filter: drop-shadow(0 0 6px rgba(140,168,200,0.70));
+  }
+  /* Tèo — bạch kim trắng ↔ đỏ | CO-OWNER */
+  .gname.platinum-red {
+    background-image: linear-gradient(90deg, #c8a8a8, #c8a8a8, #e53935, #c8a8a8, #c8a8a8, #e53935, #c8a8a8);
+    filter: drop-shadow(0 0 6px rgba(200,140,140,0.70));
+  }
+  /* Phú — xanh lá neon ↔ xanh lá đậm | CO-DEV */
+  .gname.green {
+    background-image: linear-gradient(90deg, #43a047, #43a047, #b9f6ca, #43a047, #43a047, #b9f6ca, #43a047);
+    filter: drop-shadow(0 0 6px rgba(67,160,71,0.65));
+  }
+  /* Điệp, An(Joxes), Un, Long(Dezil) + admin — vàng kim ↔ đỏ | ADMIN */
+  .gname.goldred {
+    background-image: linear-gradient(90deg, #f0c040, #f0c040, #e53935, #f0c040, #f0c040, #e53935, #f0c040);
+    filter: drop-shadow(0 0 6px rgba(240,192,64,0.60));
+  }
+  /* NTZ, NTZ_, NTZ Studio, NTZ HUB — trắng bạch kim ↔ xanh bạc */
+  .gname.ntz {
+    background-image: linear-gradient(90deg, #a8c4e0, #a8c4e0, #90caf9, #a8c4e0, #a8c4e0, #90caf9, #a8c4e0);
+    filter: drop-shadow(0 0 7px rgba(168,196,224,0.80));
+  }
+  /* NOOB TEAM và team ngoài — xanh lá ↔ vàng chanh */
+  .gname.extteam {
+    background-image: linear-gradient(90deg, #43a047, #43a047, #d4e157, #43a047, #43a047, #d4e157, #43a047);
+    filter: drop-shadow(0 0 6px rgba(67,160,71,0.60));
+  }
+  /* PHD, HTD — đỏ ↔ cam */
+  .gname.subteam {
+    background-image: linear-gradient(90deg, #e53935, #e53935, #ff9800, #e53935, #e53935, #ff9800, #e53935);
+    filter: drop-shadow(0 0 6px rgba(229,57,53,0.65));
+  }
+  @media (max-width: 768px) {
+    .intro-right { float: none; width: 100%; margin-left: 0; margin-bottom: 20px; }
+    .intro-desc { max-width: 100%; }
+  }
+
+  /* Heading WELCOME TO NTZ không wrap, co lại theo video */
+  .intro-welcome,
+  .intro-to,
+  .intro-ntz {
+    white-space: nowrap;
+  }
+  .intro-heading-group {
+    min-width: 0;
+  }
+
+  /* ── VIDEO EMBED ── */
+  .video-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(47,128,237,0.18);
+    background: #000;
+    position: relative;
+    cursor: pointer;
+  }
+  .video-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  .yt-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.28);
+    transition: background 0.2s;
+  }
+  .video-wrap:hover .yt-overlay { background: rgba(0,0,0,0.18); }
+  .yt-play-btn {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .yt-play-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(255,0,0,0.90);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.45);
+    transition: transform 0.18s;
+  }
+  .video-wrap:hover .yt-play-circle { transform: scale(1.08); }
+  .yt-badge {
+    position: absolute;
+    bottom: 12px; right: 14px;
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px;
+    pointer-events: none; letter-spacing: 0.03em;
+  }
+  [data-theme="dark"] .video-wrap {
+    box-shadow: 0 12px 48px rgba(0,0,0,0.45);
+  }
+  
+
+  /* ── FOOTER DROPDOWN: mở lên trên ── */
+  .footer-dropdown-panel {
+    top: auto !important;
+    bottom: calc(100% + 8px) !important;
+    transform-origin: bottom right !important;
+    transform: translateY(8px) scale(0.97) !important;
+  }
+  .nav-dropdown-wrap.open .footer-dropdown-panel {
+    transform: translateY(0) scale(1) !important;
+  }
+
+  /* ── DARK MODE ── */
+  [data-theme="dark"] body { background: linear-gradient(135deg, #0d1b2a 0%, #1a2340 100%); }
+  [data-theme="dark"] .section-title { color: var(--text-dark); }
+  [data-theme="dark"] .section-sub { color: var(--text-muted); }
+  [data-theme="dark"] .game-title { color: var(--text-dark); }
+  [data-theme="dark"] .game-desc { color: var(--text-muted); }
+  [data-theme="dark"] .game-players { color: var(--text-muted); }
+  [data-theme="dark"] .game-genre { color: var(--accent); }
+  [data-theme="dark"] .footer-brand-name { color: var(--text-dark); }
+  [data-theme="dark"] .footer-brand-desc { color: var(--text-muted); }
+  [data-theme="dark"] .footer-copy-new { color: var(--text-muted); }
+  [data-theme="dark"] .footer-brand-icon { background: #e8eaf6; color: #1a2340; }
+  [data-theme="dark"] .footer-social-btn { background: var(--social-btn-bg); border-color: var(--social-btn-border); }
+  [data-theme="dark"] .footer-social-btn img { filter: brightness(0) invert(1) opacity(0.55); }
+  [data-theme="dark"] .footer-social-btn:hover img { filter: brightness(0) invert(1) opacity(0.90); }
+  [data-theme="dark"] .nav-dropdown-btn { color: rgba(232,234,246,0.90) !important; background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.15) !important; }
+  [data-theme="dark"] .nav-dropdown-btn:hover { background: rgba(255,255,255,0.14) !important; border-color: rgba(255,255,255,0.25) !important; }
+  [data-theme="dark"] .nd-btn-img { filter: brightness(0) invert(1) !important; }
+  [data-theme="dark"] .nav-dropdown-panel { background: rgba(20,26,45,0.97) !important; border-color: rgba(255,255,255,0.10) !important; box-shadow: 0 12px 40px rgba(0,0,0,0.40) !important; }
+  [data-theme="dark"] .nd-item { color: #e8eaf6 !important; }
+  [data-theme="dark"] .nd-item:hover { background: rgba(255,255,255,0.07) !important; }
+  [data-theme="dark"] .nd-item.active { background: rgba(255,255,255,0.10) !important; }
+  [data-theme="dark"] .nd-label { color: rgba(232,234,246,0.35) !important; }
+  [data-theme="dark"] .nd-icon-img img { filter: brightness(0) invert(1) opacity(0.6) !important; }
+  [data-theme="dark"] .ost-toggle-btn { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.15) !important; color: var(--text-dark) !important; }
+  [data-theme="dark"] .ost-toggle-btn img { filter: brightness(0) invert(1) opacity(0.5) !important; }
+  [data-theme="dark"] .ost-toggle-dot { background: #556 !important; }
+  [data-theme="dark"] .ost-toggle-btn.active .ost-toggle-dot { background: #56ccf2 !important; }
+  [data-theme="dark"] .section-label { background: rgba(86,204,242,0.12); border-color: rgba(86,204,242,0.20); }
+  [data-theme="dark"] .intro-ntz {
+    background-image: linear-gradient(90deg, #aaa, #aaa, #fff, #e0e0e0, #fff, #aaa, #aaa, #fff, #e0e0e0, #fff, #aaa);
+    filter: drop-shadow(0 2px 12px rgba(255,255,255,0.12));
+  }
+</style>
+<!-- ══════════════════════════════════════════
+     NTZ CONFIG — chỉnh nội dung tại NTZ_CONFIG.js
+══════════════════════════════════════════ -->
+<script src="NTZ_CONFIG.js"></script>
+</head>
+<body>
+
+<!-- BG -->
+<div class="hero-bg"></div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <img src="assets/icons/logo.png" alt="NTZ" style="width:22px;height:22px;object-fit:contain;border-radius:50%;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">NTZ</span>
+    </div>
+    <span class="nav-logo-text">NTZ Studio</span>
+  </a>
+
+  <!-- NAVBAR SEARCH (hiện khi scroll qua hero) -->
+  <div class="nav-search-wrap" id="nav-search-wrap">
+    <div class="nav-search-pill" id="nav-search-pill" title="Tìm kiếm">
+      <span class="pill-icon" style="display:flex;align-items:center;"><img src="assets/icons/search.png" alt="" style="width:14px;height:14px;object-fit:contain;filter:brightness(0) invert(1);opacity:0.7;" onerror="this.parentElement.innerHTML='🔍'"></span>
+      <span class="nav-search-text">Tìm kiếm NTZ...</span>
+    </div>
+    <div class="nav-search-active" id="nav-search-active">
+      <span class="search-icon" style="display:flex;align-items:center;"><img src="assets/icons/search.png" alt="" style="width:14px;height:14px;object-fit:contain;filter:brightness(0) invert(1);opacity:0.55;" onerror="this.parentElement.innerHTML='🔍'"></span>
+      <input type="text" id="nav-search-input" placeholder="Tìm kiếm NTZ..."/>
+      <button class="nav-search-close" id="nav-search-close">✕</button>
+    </div>
+    <div class="nav-suggestions" id="nav-suggestions">
+      <div class="nav-sug-item" onclick="window.open('https://discord.gg/y6UWn5aycm','_blank')">
+        <div class="nav-sug-icon discord">
+          <img src="assets/icons/discord.png" alt="Discord" onerror="this.parentElement.innerHTML='💬'">
+        </div>
+        <span class="nav-sug-label">Discord NTZ</span>
+        <span class="nav-sug-sub">discord.gg/y6UWn5aycm</span>
+      </div>
+      <div class="nav-sug-item" onclick="window.open('https://www.roblox.com/users/7887054577/profile','_blank')">
+        <div class="nav-sug-icon roblox">
+          <img src="assets/icons/roblox.png" alt="Roblox" onerror="this.parentElement.innerHTML='🎮'">
+        </div>
+        <span class="nav-sug-label">Roblox NTZ</span>
+        <span class="nav-sug-sub">Noob303developer</span>
+      </div>
+      <div class="nav-sug-item" onclick="window.open('https://www.youtube.com/@ntznoobteam','_blank')">
+        <div class="nav-sug-icon youtube">
+          <img src="assets/icons/youtube.png" alt="YouTube" onerror="this.parentElement.innerHTML='▶'">
+        </div>
+        <span class="nav-sug-label">YouTube NTZ</span>
+        <span class="nav-sug-sub">@ntznoobteam</span>
+      </div>
+    </div>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#" class="active">
+      <span class="nav-icon"><img src="assets/icons/home.png" alt="" onerror="this.replaceWith('🏠')"></span>
+      <span class="nav-text">Trang chủ</span>
+    </a></li>
+    <li><a href="#">
+      <span class="nav-icon"><img src="assets/icons/games.png" alt="" onerror="this.replaceWith('🎮')"></span>
+      <span class="nav-text">Games</span>
+    </a></li>
+    <li><a href="#">
+      <span class="nav-icon"><img src="assets/icons/about.png" alt="" onerror="this.replaceWith('ℹ️')"></span>
+      <span class="nav-text">Về chúng tôi</span>
+    </a></li>
+    <li><a href="#">
+      <span class="nav-icon"><img src="assets/icons/community.png" alt="" onerror="this.replaceWith('👥')"></span>
+      <span class="nav-text">Cộng đồng</span>
+    </a></li>
+    <li><a href="#" class="nav-login">
+      <span class="nav-icon"><img src="assets/icons/login.png" alt="" onerror="this.replaceWith('🔑')"></span>
+      <span class="nav-text">Đăng nhập</span>
+    </a></li>
+
+  </ul>
+
+</nav>
+
+<!-- HERO — SNAKE WIDGET -->
+<div class="hero-space">
+  <div class="wrap" id="wrap">
+    <div class="glass-layer" id="glass-layer"></div>
+
+    <!-- Nameplate / Search bar -->
+    <div class="nameplate-wrap" id="nameplate-wrap">
+      <div class="nameplate" id="nameplate" title="Click để tìm kiếm">
+        <span class="nameplate-name" style="padding-left:6px">NTZ Noob Team</span>
+        <div class="nameplate-sep"></div>
+        <span class="nameplate-tag" onclick="window.open('https://www.roblox.com/users/7887054577/profile','_blank')" style="cursor:pointer">ROBLOX</span>
+        <div class="nameplate-sep"></div>
+        <span class="nameplate-tag" onclick="window.open('https://discord.gg/y6UWn5aycm','_blank')" style="cursor:pointer">DISCORD</span>
+        <div class="nameplate-sep"></div>
+        <span class="nameplate-tag" onclick="window.open('https://www.youtube.com/@ntznoobteam','_blank')" style="cursor:pointer">YOUTUBE</span>
+        <div class="nameplate-sep"></div>
+        <span class="nameplate-tag" id="nameplate-year" style="padding-right:6px"></span>
+      </div>
+      <div class="search-bar" id="search-bar">
+        <span class="search-icon" style="display:flex;align-items:center;"><img src="assets/icons/search.png" alt="" style="width:14px;height:14px;object-fit:contain;filter:brightness(0) invert(1);opacity:0.7;"></span>
+        <input type="text" id="search-input" placeholder="Tìm kiếm NTZ Noob Team..."/>
+        <button class="search-close" id="search-close">✕</button>
+      </div>
+      <div class="search-suggestions" id="search-suggestions">
+        <div class="suggestion-item" onclick="window.open('https://discord.gg/y6UWn5aycm','_blank')">
+          <div class="sug-icon discord">
+            <img src="assets/icons/discord.png" alt="Discord" style="width:18px;height:18px;object-fit:contain;" onerror="this.parentElement.innerHTML='💬'">
+          </div>
+          <span class="sug-label">Discord NTZ</span>
+          <span class="sug-sub">discord.gg/y6UWn5aycm</span>
+        </div>
+        <div class="suggestion-item" onclick="window.open('https://www.roblox.com/users/7887054577/profile','_blank')">
+          <div class="sug-icon roblox">
+            <img src="assets/icons/roblox.png" alt="Roblox" style="width:18px;height:18px;object-fit:contain;" onerror="this.parentElement.innerHTML='🎮'">
+          </div>
+          <span class="sug-label">Roblox NTZ</span>
+          <span class="sug-sub">Noob303developer</span>
+        </div>
+        <div class="suggestion-item" onclick="window.open('https://www.youtube.com/@ntznoobteam','_blank')">
+          <div class="sug-icon youtube">
+            <img src="assets/icons/youtube.png" alt="YouTube" style="width:18px;height:18px;object-fit:contain;" onerror="this.parentElement.innerHTML='▶'">
+          </div>
+          <span class="sug-label">YouTube NTZ</span>
+          <span class="sug-sub">@ntznoobteam</span>
+        </div>
+      </div>
+    </div>
+
+    <svg id="svg" viewBox="-60 -60 780 400" width="660" height="300" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;position:relative;z-index:1;">
+      <path fill="none" stroke="none" d="M 30,210 L 30,50 L 160,210 L 160,50"/>
+      <path fill="none" stroke="none" d="M 220,70 L 400,70 M 310,70 L 310,210"/>
+      <path fill="none" stroke="none" d="M 440,70 L 630,70 L 440,210 L 630,210"/>
+      <line id="ns1" stroke="none" stroke-width="34" stroke-linecap="round" x1="160" y1="50"  x2="160" y2="50"/>
+      <line id="ns2" stroke="none" stroke-width="34" stroke-linecap="round" x1="160" y1="210" x2="160" y2="210"/>
+      <line id="ns3" stroke="none" stroke-width="34" stroke-linecap="round" x1="30"  y1="50"  x2="30"  y2="50"/>
+      <line id="ns4" stroke="none" stroke-width="34" stroke-linecap="round" x1="30"  y1="210" x2="30"  y2="210"/>
+      <line id="ts1" stroke="none" stroke-width="34" stroke-linecap="round" x1="220" y1="70"  x2="220" y2="70"/>
+      <line id="ts2" stroke="none" stroke-width="34" stroke-linecap="round" x1="400" y1="70"  x2="400" y2="70"/>
+      <line id="ts3" stroke="none" stroke-width="34" stroke-linecap="round" x1="310" y1="210" x2="310" y2="210"/>
+      <line id="zs1" stroke="none" stroke-width="34" stroke-linecap="round" x1="630" y1="210" x2="630" y2="210"/>
+      <path id="tr_z" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+      <path id="tr_t" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+      <path id="tr_n" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+      <path id="sk_z" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+      <path id="sk_t" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+      <path id="sk_n" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d=""/>
+    </svg>
+
+    <!-- Info panel -->
+    <div class="info">
+      <div class="studio-desc">"NTZ luôn mang đến trải nghiệm tuyệt vời nhất cho người chơi!"</div>
+      <div class="mid-row">
+        <div class="notif-card" style="flex:1;min-width:0;">
+          <div class="notif-info-bar">
+            <div class="notif-avatar">
+              <img src="assets/avatars/owner.png" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.replaceWith(document.createTextNode('👑'))">
+            </div>
+            <div class="notif-meta">
+              <div class="notif-owner">Noob303developer</div>
+              <div class="notif-role">Chủ sở hữu · NTZ Noob Team</div>
+            </div>
+          </div>
+          <div class="notif-body">
+            Mùa giải mới đã chính thức bắt đầu! Tham gia ngay để nhận phần thưởng giới hạn và trải nghiệm bản đồ hoàn toàn mới. 🎮
+          </div>
+          <div class="notif-date">📅 19 tháng 5, 2026 · 08:00 SA</div>
+        </div>
+        <div class="chip-row">
+          <div class="chip-item">
+            <div class="chip-icon-circle">
+              <img src="assets/icons/event.png" alt="" style="width:20px;height:20px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode('🎉'))">
+            </div>
+            <button class="chip">Sự Kiện</button>
+          </div>
+          <div class="chip-item">
+            <div class="chip-icon-circle">
+              <img src="assets/icons/hot.png" alt="" style="width:20px;height:20px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode('🔥'))">
+            </div>
+            <button class="chip">Game Hot</button>
+          </div>
+          <div class="chip-item">
+            <div class="chip-icon-circle">
+              <img src="assets/icons/new.png" alt="" style="width:20px;height:20px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode('✨'))">
+            </div>
+            <button class="chip">Mới Ra Mắt</button>
+          </div>
+          <div class="chip-item">
+            <div class="chip-icon-circle">
+              <img src="assets/icons/more.png" alt="" style="width:20px;height:20px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode('→'))">
+            </div>
+            <button class="chip">Tìm Hiểu Thêm</button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon-circle">
+            <img src="assets/icons/project.png" alt="" onerror="this.replaceWith(document.createTextNode('🎮'))">
+          </div>
+          <div class="stat-text">
+            <div class="stat-num">4</div>
+            <div class="stat-label">Dự Án</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-circle">
+            <img src="assets/icons/members.png" alt="" onerror="this.replaceWith(document.createTextNode('👥'))">
+          </div>
+          <div class="stat-text">
+            <div class="stat-num">12</div>
+            <div class="stat-label">Thành Viên</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-circle">
+            <img src="assets/icons/rating.png" alt="" onerror="this.replaceWith(document.createTextNode('⭐'))">
+          </div>
+          <div class="stat-text">
+            <div class="stat-num">Alpha</div>
+            <div class="stat-label">Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <div class="scroll-indicator" id="scroll-indicator">
+          <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="19" cy="19" r="18" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+            <polyline points="13,16 19,23 25,16" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING SHEET -->
+<div class="page-wrap">
+  <div class="content-sheet">
+
+    <!-- INTRO SECTION -->
+    <div class="intro-section">
+
+      <!-- VIDEO: float right — phải đặt đầu tiên để chữ wrap xung quanh -->
+      <div class="intro-right">
+        <div class="video-wrap" id="yt-wrap">
+          <iframe
+            id="yt-iframe"
+            src="https://www.youtube.com/embed/b-X3OeRo1-w?enablejsapi=1&rel=0&mute=1"
+            title="NTZ Studio"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            style="width:100%;height:100%;border:none;display:block;"
+          ></iframe>
+        </div>
+      </div>
+      <script>
+      (function(){
+        const wrap = document.getElementById('yt-wrap');
+        const iframe = document.getElementById('yt-iframe');
+        let played = false;
+        const obs = new IntersectionObserver(function(entries){
+          entries.forEach(function(entry){
+            if(entry.isIntersecting && !played){
+              played = true;
+              iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*');
+              setTimeout(function(){
+                const src = iframe.src;
+                if(!src.includes('autoplay=1')){
+                  iframe.src = src.replace('enablejsapi=1','enablejsapi=1&autoplay=1');
+                }
+              }, 600);
+            }
+          });
+        }, { threshold: 0.5 });
+        obs.observe(wrap);
+      })();
+      </script>
+
+      <!-- HEADING: WELCOME TO NTZ — chiếm 30% bên trái -->
+      <div class="intro-heading-outer">
+        <div class="intro-heading-group">
+          <span class="intro-welcome">WELCOME</span>
+          <div class="intro-tontz">
+            <span class="intro-to">TO</span>
+            <span class="intro-ntz">NTZ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEXT: chảy tiếp bên trái rồi xuống dưới video -->
+      <div class="intro-left" id="intro-section-sub">
+          <p id="intro-p1"><span class="gname ntz">NTZ</span> được thành lập vào khoảng <mark class="hl">2020</mark> sau sự sụp đổ của <span class="gname extteam">NOOB TEAM</span>, với hướng phát triển bền vững <span class="gname ntz">NTZ</span> đã đạt <mark class="hl">1 năm tuổi</mark> với <strong>9 thành viên</strong> — trong đó có <strong>3 thành viên cốt cán</strong> là <span class="gname platinum">Dũng</span>, <mark class="hl">Huy</mark> và <mark class="hl">Khang</mark>. Người <em class="it">sáng lập</em> là <span class="gname platinum">Dũng</span>, người <em class="it">đồng sáng lập</em> là Huy. <span class="gname ntz">NTZ</span> tồn tại xuyên suốt thời gian hình thành và phát triển của <strong>Roblox</strong> đến ngày hôm nay, với các Group, cộng đồng, Guild mang tên <span class="gname ntz">NTZ</span> hay <span class="gname ntz">NTZ Studio</span>. Các thành viên theo sự phát triển dần cũng có tên đệm <span class="gname ntz">NTZ_</span> đánh dấu mốc phát triển mới.</p>
+          <p id="intro-p2">Sang <em class="it">năm thứ 2</em>, <span class="gname ntz">NTZ</span> ghi nhận <strong>cuộc đả kích</strong> từ các thành viên cốt cán và bước vào <mark class="hl dark">thời kì đen tối nhất</mark> với chỉ <strong>4 thành viên</strong> — Huy và Tính là người kích động đám đông làm <em class="it">tan rã toàn bộ</em>. Phe ở lại gồm <span class="gname green">Phú</span>, Kiệt, <span class="gname goldred">Un</span>, <span class="gname goldred">Long (Dezil)</span> và <span class="gname platinum-red">Tèo</span>. Với một <em class="it">hy vọng mong manh</em>, <span class="gname ntz">NTZ</span> đã thực sự <mark class="hl">hồi sinh</mark> vào năm thứ 3 — ngày <mark class="hl">31/10/2023</mark> đánh dấu mốc quan trọng cho sự trở lại. <span class="gname ntz">NTZ</span> sau đó đón nhận thành viên cũ gồm <mark class="hl">Khang</mark>, <mark class="hl">Hưng</mark> và <mark class="hl">Kuso</mark>; thành viên mới gồm <span class="gname goldred">Điệp</span>, <span class="gname goldred">An (Joxes)</span>, <mark class="hl">Nam</mark> và <mark class="hl">Hiển (Bo)</mark>.</p>
+          <p id="intro-p3">Với sự trở lại mạnh mẽ, người <em class="it">Sáng Lập</em> đưa ra quyết định <span class="gname ntz">NTZ</span> sẽ trở thành <mark class="hl">một Studio game thật sự</mark>. Ngày <mark class="hl">16/10/2024</mark> bắt đầu công cuộc lập trình với <strong>4 dự án chính</strong>: <span class="gname couser">Couser Game</span>, <span class="gname legend">Legend Warriors</span>, <span class="gname death">Death Spirit</span> và <span class="gname ntzitems">NTZ Items</span> — về sau <span class="gname ntzitems">NTZ Items</span> được thay thế bởi <span class="gname buird">BUIRD</span>, một game mang tính <strong>sáng tạo và sinh tồn</strong> cực kì cao! <span class="gname ntzitems">NTZ Items</span> nay trở thành <span class="gname ntz">NTZ HUB</span> — chính trang bạn đang xem lúc này.</p>
+          <p id="intro-p4">Trong quá trình phát triển, <span class="gname ntz">NTZ</span> cho ra đời team <span class="gname subteam">PHD</span> <em class="it">(<span class="gname green">Phú</span>, Huy, <span class="gname platinum">Dũng</span>)</em> — sau đổi tên thành <span class="gname subteam">HTD</span> — phục vụ như <em class="it">team con</em> của <span class="gname ntz">NTZ</span>. Team này sau bị bỏ dỡ khi <span class="gname ntz">NTZ</span> tan rã. Hiện nay <span class="gname ntz">NTZ</span> sẽ <mark class="hl dark">không tuyển thêm bất kì thành viên nào</mark> nhằm đảm bảo sự <strong>độc quyền</strong>. Đồng thời, sau update <mark class="hl">"Free World"</mark>, <strong>mọi thành viên đều có thể gia nhập bất kì team nào khác bên ngoài nhưng vẫn giữ chức vụ trong <span class="gname ntz">NTZ</span></strong> — trừ khi thoát team. Mọi quyền lợi của thành viên đều được cấp đầy đủ!</p>
+      </div>
+
+      <!-- PHÂN CẤP SHINY -->
+      <div class="rank-legend">
+        <div class="rank-legend-title" id="rank-legend-title">Phân cấp thành viên</div>
+
+        <div class="rank-pill">
+          <div class="rank-pill-badge">
+            <span class="gname platinum" style="padding:0;font-size:13px;">Aa</span>
+          </div>
+          <div class="rank-pill-label">
+            <strong>Owner</strong>
+            <span id="rank-owner-desc">Bạch Kim — trắng xanh dương</span>
+          </div>
+        </div>
+
+        <div class="rank-pill">
+          <div class="rank-pill-badge">
+            <span class="gname platinum-red" style="padding:0;font-size:13px;">Aa</span>
+          </div>
+          <div class="rank-pill-label">
+            <strong>Co-owner</strong>
+            <span id="rank-coowner-desc">Bạch Kim Đỏ — trắng đỏ</span>
+          </div>
+        </div>
+
+        <div class="rank-pill">
+          <div class="rank-pill-badge">
+            <span class="gname green" style="padding:0;font-size:13px;">Aa</span>
+          </div>
+          <div class="rank-pill-label">
+            <strong>Co-developer</strong>
+            <span id="rank-codev-desc">Xanh Lá — xanh đậm sáng</span>
+          </div>
+        </div>
+
+        <div class="rank-pill">
+          <div class="rank-pill-badge">
+            <span class="gname goldred" style="padding:0;font-size:13px;">Aa</span>
+          </div>
+          <div class="rank-pill-label">
+            <strong>Admin</strong>
+            <span id="rank-admin-desc">Vàng Kim — vàng đỏ</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+        <div class="sheet-footer">
+      <!-- Footer 1 hàng -->
+      <div class="footer-main">
+        <!-- Trái: Logo + tên -->
+        <div class="footer-brand">
+          <div class="footer-brand-icon">
+            <img src="assets/icons/logo.png" alt="NTZ" style="width:26px;height:26px;object-fit:contain;border-radius:50%;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">NTZ</span>
+          </div>
+          <div>
+            <div class="footer-brand-name">NTZ Studio</div>
+            <div class="footer-brand-desc">NOW ON ROBLOX</div>
+          </div>
+        </div>
+
+        <!-- Giữa: Social -->
+        <div class="footer-socials">
+          <a href="https://discord.gg/y6UWn5aycm" target="_blank" class="footer-social-btn" title="Discord">
+            <img src="assets/icons/discord.png" alt="Discord" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'💬',style:'font-size:15px'}))">
+          </a>
+          <a href="https://www.roblox.com/users/7887054577/profile" target="_blank" class="footer-social-btn" title="Roblox">
+            <img src="assets/icons/roblox.png" alt="Roblox" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🎮',style:'font-size:15px'}))">
+          </a>
+          <a href="https://www.youtube.com/@ntznoobteam" target="_blank" class="footer-social-btn" title="YouTube">
+            <img src="assets/icons/youtube.png" alt="YouTube" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'▶',style:'font-size:15px'}))">
+          </a>
+
+          <!-- Divider -->
+          <span style="width:1px;height:20px;background:rgba(0,0,0,0.12);display:inline-block;margin:0 4px;"></span>
+
+          <!-- Language picker -->
+          <div class="nav-dropdown-wrap" id="lang-wrap" style="position:relative;">
+            <button class="nav-dropdown-btn nav-icon-btn" id="lang-btn" title="Ngôn ngữ">
+              <img src="assets/icons/lang.png" alt="" class="nd-btn-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">🌐</span>
+            </button>
+            <div class="nav-dropdown-panel footer-dropdown-panel" id="lang-panel">
+              <div class="nd-label">Ngôn ngữ</div>
+              <div class="nd-item active" id="lang-en" onclick="setLang('en')">
+                <span class="nd-icon">🇬🇧</span> English
+                <span class="nd-check"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 7L5 10L11 3" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+              <div class="nd-item" id="lang-vi" onclick="setLang('vi')">
+                <span class="nd-icon">🇻🇳</span> Tiếng Việt
+                <span class="nd-check"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 7L5 10L11 3" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Theme picker -->
+          <div class="nav-dropdown-wrap" id="theme-wrap" style="position:relative;">
+            <button class="nav-dropdown-btn nav-icon-btn" id="theme-btn" title="Giao diện">
+              <img src="assets/icons/theme_system.png" alt="" id="theme-btn-img" class="nd-btn-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">💻</span>
+            </button>
+            <div class="nav-dropdown-panel footer-dropdown-panel" id="theme-panel">
+              <div class="nd-label">Giao diện</div>
+              <div class="nd-item" id="theme-light" onclick="setTheme('light')">
+                <span class="nd-icon-img"><img src="assets/icons/theme_light.png" alt="" onerror="this.replaceWith(document.createTextNode('☀️'))"></span> Sáng
+                <span class="nd-check"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 7L5 10L11 3" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+              <div class="nd-item" id="theme-dark" onclick="setTheme('dark')">
+                <span class="nd-icon-img"><img src="assets/icons/theme_dark.png" alt="" onerror="this.replaceWith(document.createTextNode('🌙'))"></span> Tối
+                <span class="nd-check"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 7L5 10L11 3" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+              <div class="nd-item active" id="theme-system" onclick="setTheme('system')">
+                <span class="nd-icon-img"><img src="assets/icons/theme_system.png" alt="" onerror="this.replaceWith(document.createTextNode('💻'))"></span> System
+                <span class="nd-check"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 7L5 10L11 3" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+            </div>
+          </div>
+          <!-- Shiny toggle -->
+          <button class="nav-dropdown-btn nav-icon-btn shiny-toggle-btn" id="shiny-toggle-btn" title="Tắt/Bật hiệu ứng Shiny" onclick="toggleShiny()" style="position:relative;">
+            <img id="shiny-toggle-icon" src="assets/icons/shiny.png" alt="✨"
+                 class="nd-btn-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+            <span style="display:none;font-size:14px;">✨</span>
+            <span id="shiny-toggle-slash" style="
+              position:absolute;top:50%;left:50%;
+              transform:translate(-50%,-50%) rotate(-45deg);
+              width:2px;height:0%;background:currentColor;
+              display:block;border-radius:2px;
+              transition:height 0.2s ease;
+              pointer-events:none;
+            "></span>
+          </button>
+        </div>
+
+        <!-- Phải: OST + copyright -->
+        <div class="footer-right">
+          <button class="ost-toggle-btn" id="ost-toggle-btn" title="Bật/Tắt OST Player">
+            <span class="ost-toggle-dot" id="ost-toggle-dot"></span>
+            <img src="assets/icons/ost_music.png" alt="" style="width:13px;height:13px;object-fit:contain;filter:brightness(0) opacity(0.5);vertical-align:middle;" onerror="this.style.display='none'">
+            OST Player
+          </button>
+          <div class="footer-copy-new">© 2026 NTZ Studio</div>
+        </div>
+      </div>
+      <!-- Ảnh ONLY ON ROBLOX scroll-in -->
+      <div class="footer-onlyon-wrap">
+        <img
+          id="footer-onlyon"
+          class="footer-onlyon-img"
+          src="assets/icons/ONLYINROBLOX.png"
+          alt="Only on Roblox"
+          draggable="false"
+        />
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const layer  = document.getElementById('glass-layer');
+  const wrap   = document.getElementById('wrap');
+  const LIGHT = { x: 15, y: 8 };
+  const SHARDS = [
+    { l:1,   t:1,  w:64, h:50, rot:-18, scale:0.80, dur:2.2, del: 0.0, dy:-12 },
+    { l:17,  t:0,  w:44, h:36, rot: 32, scale:0.65, dur:1.9, del:-0.3, dy:-10 },
+    { l:73,  t:0,  w:50, h:40, rot:-12, scale:0.68, dur:2.6, del:-0.6, dy:-13 },
+    { l:86,  t:1,  w:58, h:46, rot: 20, scale:0.72, dur:2.4, del:-0.4, dy:-14 },
+    { l:0,   t:16, w:48, h:38, rot:  8, scale:0.62, dur:2.0, del:-0.5, dy:-10 },
+    { l:0,   t:68, w:52, h:44, rot:-38, scale:0.70, dur:2.1, del:-0.1, dy:-14 },
+    { l:0,   t:82, w:44, h:36, rot: 14, scale:0.60, dur:2.3, del:-0.8, dy:-10 },
+    { l:90,  t:18, w:46, h:38, rot:-22, scale:0.63, dur:2.1, del:-0.3, dy:-10 },
+    { l:89,  t:68, w:60, h:48, rot: 10, scale:0.76, dur:2.2, del:-0.8, dy:-14 },
+    { l:91,  t:82, w:42, h:34, rot:-40, scale:0.61, dur:1.8, del:-0.7, dy:-10 },
+    { l:2,   t:87, w:56, h:38, rot:-15, scale:0.72, dur:2.3, del:-0.6, dy:-12 },
+    { l:78,  t:88, w:60, h:36, rot: 22, scale:0.74, dur:2.4, del:-0.4, dy:-14 },
+    { l:8,   t:25, w:72, h:58, rot: 6,  scale:0.90, dur:2.5, del:-0.2, dy:-15 },
+    { l:22,  t:20, w:60, h:50, rot:-20, scale:0.85, dur:2.0, del:-0.4, dy:-13 },
+    { l:38,  t:28, w:68, h:54, rot: 25, scale:0.88, dur:2.7, del:-0.9, dy:-16 },
+    { l:55,  t:22, w:64, h:52, rot:-11, scale:0.82, dur:1.9, del:-0.3, dy:-13 },
+    { l:68,  t:30, w:58, h:48, rot: 34, scale:0.86, dur:2.2, del:-0.6, dy:-15 },
+  ];
+  const styleEl = document.createElement('style');
+  styleEl.textContent = SHARDS.map((s,i) => `
+    @keyframes sf${i} {
+      0%   { transform: rotate(${s.rot}deg) scale(${s.scale}); }
+      100% { transform: rotate(${s.rot + (i%2===0 ? 5.5 : -5.5)}deg) scale(${s.scale}) translateY(${s.dy}px); }
+    }
+  `).join('');
+  document.head.appendChild(styleEl);
+  SHARDS.forEach((s, i) => {
+    const cx = s.l + (s.w / wrap.offsetWidth  * 50);
+    const cy = s.t + (s.h / wrap.offsetHeight * 50);
+    const dx = cx - LIGHT.x;
+    const dy = cy - LIGHT.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    const lx = -dx / dist, ly = -dy / dist;
+    const dotTop    = Math.max(0,  ly * -1);
+    const dotLeft   = Math.max(0,  lx * -1);
+    const dotRight  = Math.max(0,  lx *  1);
+    const dotBottom = Math.max(0,  ly *  1);
+    const edgeBase = 0.04, edgeMax = 0.55;
+    const et = edgeBase + dotTop    * edgeMax;
+    const el = edgeBase + dotLeft   * edgeMax;
+    const er = edgeBase + dotRight  * edgeMax;
+    const eb = edgeBase + dotBottom * edgeMax;
+    const shard = document.createElement('div');
+    shard.className = 'shard';
+    shard.style.cssText = `
+      left:${s.l}%; top:${s.t}%;
+      width:${s.w}px; height:${s.h}px;
+      animation:sf${i} ${s.dur}s ease-in-out ${s.del}s infinite alternate;
+      border-top:   1px solid rgba(255,255,255,${et.toFixed(3)});
+      border-left:  1px solid rgba(255,255,255,${el.toFixed(3)});
+      border-right: 1px solid rgba(255,255,255,${er.toFixed(3)});
+      border-bottom:1px solid rgba(255,255,255,${eb.toFixed(3)});
+      opacity:${(0.6 + s.scale * 0.4).toFixed(2)};
+    `;
+    layer.appendChild(shard);
+  });
+})();
+</script>
+
+<script>
+(function(){
+function buildArc(wps){
+  const pts=[]; let cum=0;
+  for(let i=0;i<wps.length;i++){
+    if(i>0){const dx=wps[i][0]-wps[i-1][0],dy=wps[i][1]-wps[i-1][1];cum+=Math.hypot(dx,dy);}
+    pts.push({x:wps[i][0],y:wps[i][1],d:cum});
+  }
+  return {pts,total:cum};
+}
+function ptAt(pts,total,d){
+  const dc=Math.max(0,Math.min(total,d));
+  if(dc<=0) return {x:pts[0].x,y:pts[0].y};
+  if(dc>=total) return {x:pts[pts.length-1].x,y:pts[pts.length-1].y};
+  for(let i=1;i<pts.length;i++){
+    if(pts[i].d>=dc){
+      const seg=pts[i].d-pts[i-1].d;
+      const t=seg===0?0:(dc-pts[i-1].d)/seg;
+      return {x:pts[i-1].x+(pts[i].x-pts[i-1].x)*t,y:pts[i-1].y+(pts[i].y-pts[i-1].y)*t};
+    }
+  }
+  return {x:pts[pts.length-1].x,y:pts[pts.length-1].y};
+}
+function segD(pts,total,ds,de){
+  const a=Math.max(0,Math.min(total,ds));
+  const b=Math.max(0,Math.min(total,de));
+  if(b<=a) return '';
+  const n=Math.max(2,Math.ceil((b-a)/2));
+  let d='';
+  for(let i=0;i<=n;i++){
+    const p=ptAt(pts,total,a+(b-a)*(i/n));
+    d+=(i===0?`M ${p.x.toFixed(1)},${p.y.toFixed(1)}`:`L ${p.x.toFixed(1)},${p.y.toFixed(1)}`)+' ';
+  }
+  return d;
+}
+function lerp(a,b,t){return a+(b-a)*t;}
+function easeIn(t){return t*t*t;}
+function easeOutBack(t){
+  const c1=2.5,c3=c1+1;
+  return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);
+}
+function easeSnake(t){
+  const split=0.55;
+  if(t<=split) return easeIn(t/split)*split;
+  return split+easeOutBack((t-split)/(1-split))*(1-split);
+}
+function easeInOut(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+const TAIL_OUT={n:[160,-600],t:[310,900],z:[1400,210]};
+const TAIL_IN ={n:[160,-20],t:[310,280],z:[760,210]};
+const TAIL_HOVER={n:[160,  50],t:[310,210],z:[ 630,210]};
+const WPS_N=[[160,50],[160,210],[30,50],[30,210]];
+const WPS_T=[[310,210],[310,70]];
+const WPS_Z=[[630,210],[440,210],[630,70],[440,70],[220,70],[400,70]];
+
+function buildPath(tailPt,wps){return buildArc([tailPt,...wps]);}
+
+let PATH_N=buildPath(TAIL_OUT.n,WPS_N);
+let PATH_T=buildPath(TAIL_OUT.t,WPS_T);
+let PATH_Z=buildPath(TAIL_OUT.z,WPS_Z);
+
+const DUR=2400, DUR_EXIT=2000;
+const elN=document.getElementById('sk_n');
+const elT=document.getElementById('sk_t');
+const elZ=document.getElementById('sk_z');
+const trN=document.getElementById('tr_n');
+const trT=document.getElementById('tr_t');
+const trZ=document.getElementById('tr_z');
+const SNAKE_LEN=120;
+
+const SERIFS={
+  ns1:{el:'ns1',x1:160,y1:50, x2:160,y2:-20},
+  ns2:{el:'ns2',x1:160,y1:210,x2:160,y2:270},
+  ns3:{el:'ns3',x1:30, y1:50, x2:30, y2:-20},
+  ns4:{el:'ns4',x1:30, y1:210,x2:30, y2:270},
+  ts1:{el:'ts1',x1:220,y1:70, x2:150,y2:70},
+  ts2:{el:'ts2',x1:400,y1:70, x2:470,y2:70},
+  ts3:{el:'ts3',x1:310,y1:210,x2:310,y2:280},
+  zs1:{el:'zs1',x1:630,y1:210,x2:700,y2:210},
+};
+
+function animSerif(id,delay){
+  const s=SERIFS[id];
+  const el=document.getElementById(s.el);
+  const dur=320; let t0=null;
+  function go(now){
+    if(!t0) t0=now;
+    const p=easeInOut(Math.min((now-t0)/dur,1));
+    el.setAttribute('x1',s.x1);el.setAttribute('y1',s.y1);
+    el.setAttribute('x2',lerp(s.x1,s.x2,p));
+    el.setAttribute('y2',lerp(s.y1,s.y2,p));
+    if(p<1) requestAnimationFrame(go);
+  }
+  setTimeout(()=>requestAnimationFrame(go),delay);
+}
+function retractSerif(id,delay){
+  const s=SERIFS[id];
+  const el=document.getElementById(s.el);
+  const cx2=parseFloat(el.getAttribute('x2')||s.x1);
+  const cy2=parseFloat(el.getAttribute('y2')||s.y1);
+  const dur=200; let t0=null;
+  function go(now){
+    if(!t0) t0=now;
+    const p=easeInOut(Math.min((now-t0)/dur,1));
+    el.setAttribute('x2',lerp(cx2,s.x1,p));
+    el.setAttribute('y2',lerp(cy2,s.y1,p));
+    if(p<1) requestAnimationFrame(go);
+  }
+  setTimeout(()=>requestAnimationFrame(go),delay);
+}
+function resetSerifs(){
+  Object.values(SERIFS).forEach(s=>{
+    const el=document.getElementById(s.el);
+    el.setAttribute('x1',s.x1);el.setAttribute('y1',s.y1);
+    el.setAttribute('x2',s.x1);el.setAttribute('y2',s.y1);
+  });
+}
+function animate(path,el,elTrace,p,easeFn){
+  const total=path.total;
+  const ep=easeFn(p);
+  const journey=total+SNAKE_LEN;
+  const head=ep*journey-SNAKE_LEN;
+  const tail=head-SNAKE_LEN;
+  const traceEnd=Math.max(0,Math.min(total,tail));
+  elTrace.setAttribute('d',traceEnd>0?segD(path.pts,total,0,traceEnd):'');
+  const sTail=Math.max(0,Math.min(total,tail));
+  if(head<=0){el.setAttribute('d','');return;}
+  if(head<=total){
+    el.setAttribute('d',segD(path.pts,total,sTail,head));
+  } else {
+    const overshoot=head-total;
+    const last=path.pts[path.pts.length-1];
+    const prev=path.pts[path.pts.length-2];
+    const dx=last.x-prev.x,dy=last.y-prev.y;
+    const len=Math.hypot(dx,dy)||1;
+    const ex=last.x+(dx/len)*overshoot;
+    const ey=last.y+(dy/len)*overshoot;
+    el.setAttribute('d',segD(path.pts,total,sTail,total)+` L ${ex.toFixed(1)},${ey.toFixed(1)}`);
+  }
+}
+
+const HOVER_DUR=450;
+let hoverRaf=null,hoverT0=null,hoverP=1,animDone=false;
+let headStretch=0;
+const HEAD_STRETCH_MAX=80;
+const HEAD_DIR={
+  n:[30,210,0,1],
+  t:null,
+  z:[400,70,-1,0],
+};
+function buildPathWithHead(tailPt,wps,headEx){
+  if(headEx) return buildArc([tailPt,...wps,headEx]);
+  return buildArc([tailPt,...wps]);
+}
+function getHeadExt(key,stretch){
+  if(stretch<=0) return null;
+  const d=HEAD_DIR[key];
+  if(!d) return null;
+  return [d[0]+d[2]*stretch,d[1]+d[3]*stretch];
+}
+function rebuildPaths(){
+  const hs=headStretch;
+  PATH_N=buildPathWithHead([lerp(TAIL_IN.n[0],TAIL_HOVER.n[0],1-hoverP),lerp(TAIL_IN.n[1],TAIL_HOVER.n[1],1-hoverP)],WPS_N,getHeadExt('n',hs));
+  PATH_T=buildPathWithHead([lerp(TAIL_IN.t[0],TAIL_HOVER.t[0],1-hoverP),lerp(TAIL_IN.t[1],TAIL_HOVER.t[1],1-hoverP)],WPS_T,getHeadExt('t',hs));
+  PATH_Z=buildPathWithHead([lerp(TAIL_IN.z[0],TAIL_HOVER.z[0],1-hoverP),lerp(TAIL_IN.z[1],TAIL_HOVER.z[1],1-hoverP)],WPS_Z,getHeadExt('z',hs));
+}
+function redrawTraces(){
+  trN.setAttribute('d',segD(PATH_N.pts,PATH_N.total,0,PATH_N.total));
+  trT.setAttribute('d',segD(PATH_T.pts,PATH_T.total,0,PATH_T.total));
+  trZ.setAttribute('d',segD(PATH_Z.pts,PATH_Z.total,0,PATH_Z.total));
+}
+function animHover(dir){
+  if(state!=='in') return;
+  if(hoverRaf) cancelAnimationFrame(hoverRaf);
+  const startTail=hoverP,endTail=dir===-1?0:1;
+  const startHead=headStretch,endHead=dir===-1?HEAD_STRETCH_MAX:0;
+  hoverT0=null;
+  function hframe(now){
+    if(!hoverT0) hoverT0=now;
+    const p=easeInOut(Math.min((now-hoverT0)/HOVER_DUR,1));
+    hoverP=lerp(startTail,endTail,p);
+    headStretch=lerp(startHead,endHead,p);
+    rebuildPaths();
+    redrawTraces();
+    if(p<1) hoverRaf=requestAnimationFrame(hframe);
+    else hoverRaf=null;
+  }
+  hoverRaf=requestAnimationFrame(hframe);
+}
+
+let rafId=null,t0=null;
+let state='idle';
+function run(){
+  if(state==='entering'||state==='exiting') return;
+  state='entering';
+  animDone=false;
+  if(hoverRaf){cancelAnimationFrame(hoverRaf);hoverRaf=null;}
+  headStretch=0;
+  PATH_N=buildPath(TAIL_OUT.n,WPS_N);
+  PATH_T=buildPath(TAIL_OUT.t,WPS_T);
+  PATH_Z=buildPath(TAIL_OUT.z,WPS_Z);
+  hoverP=1;
+  if(rafId) cancelAnimationFrame(rafId);
+  elN.setAttribute('d','');elT.setAttribute('d','');elZ.setAttribute('d','');
+  trN.setAttribute('d','');trT.setAttribute('d','');trZ.setAttribute('d','');
+  resetSerifs();t0=null;
+  function frame(now){
+    if(t0===null) t0=now;
+    const raw=Math.min((now-t0)/DUR,1);
+    animate(PATH_Z,elZ,trZ,raw,easeInOut);
+    animate(PATH_T,elT,trT,raw,easeInOut);
+    animate(PATH_N,elN,trN,raw,easeSnake);
+    if(raw<1){
+      rafId=requestAnimationFrame(frame);
+    } else {
+      // Entrance xong: ẩn snake, hiện trace đầy đủ, bắn serif
+      elN.setAttribute('d','');elT.setAttribute('d','');elZ.setAttribute('d','');
+      trN.setAttribute('d',segD(PATH_N.pts,PATH_N.total,0,PATH_N.total));
+      trT.setAttribute('d',segD(PATH_T.pts,PATH_T.total,0,PATH_T.total));
+      trZ.setAttribute('d',segD(PATH_Z.pts,PATH_Z.total,0,PATH_Z.total));
+      ['ns1','ns2','ns3','ns4'].forEach((id,i)=>animSerif(id,i*60));
+      ['ts1','ts2','ts3'].forEach((id,i)=>animSerif(id,i*60));
+      ['zs1'].forEach((id,i)=>animSerif(id,i*60));
+
+      // Rút đuôi từ TAIL_OUT → TAIL_IN mượt mà
+      const RETRACT_DUR=700; let rT0=null;
+      state='retracting';
+      function retractTail(now){
+        if(!rT0) rT0=now;
+        const p=easeInOut(Math.min((now-rT0)/RETRACT_DUR,1));
+        PATH_N=buildArc([[lerp(TAIL_OUT.n[0],TAIL_IN.n[0],p),lerp(TAIL_OUT.n[1],TAIL_IN.n[1],p)],...WPS_N]);
+        PATH_T=buildArc([[lerp(TAIL_OUT.t[0],TAIL_IN.t[0],p),lerp(TAIL_OUT.t[1],TAIL_IN.t[1],p)],...WPS_T]);
+        PATH_Z=buildArc([[lerp(TAIL_OUT.z[0],TAIL_IN.z[0],p),lerp(TAIL_OUT.z[1],TAIL_IN.z[1],p)],...WPS_Z]);
+        trN.setAttribute('d',segD(PATH_N.pts,PATH_N.total,0,PATH_N.total));
+        trT.setAttribute('d',segD(PATH_T.pts,PATH_T.total,0,PATH_T.total));
+        trZ.setAttribute('d',segD(PATH_Z.pts,PATH_Z.total,0,PATH_Z.total));
+        if(p<1){
+          rafId=requestAnimationFrame(retractTail);
+        } else {
+          rafId=null; hoverP=1;
+          rebuildPaths(); redrawTraces();
+          animDone=true; state='in';
+          // Nếu chuột đang hover thì apply ngay, không để nó tự trigger
+          if(isMouseOver) animHover(-1);
+        }
+      }
+      rafId=requestAnimationFrame(retractTail);
+    }
+  }
+  rafId=requestAnimationFrame(frame);
+}
+function runExit(){
+  if(state!=='in') return;
+  state='exiting';animDone=false;
+  if(hoverRaf){cancelAnimationFrame(hoverRaf);hoverRaf=null;}
+  Object.keys(SERIFS).forEach((id,i)=>retractSerif(id,i*30));
+  const startTail=hoverP,startHead=headStretch;
+  const PRE_DUR=400;let preT0=null;
+  function preTween(now){
+    if(!preT0) preT0=now;
+    const p=easeInOut(Math.min((now-preT0)/PRE_DUR,1));
+    hoverP=lerp(startTail,0,p);
+    headStretch=lerp(startHead,HEAD_STRETCH_MAX,p);
+    rebuildPaths();redrawTraces();
+    if(p<1){requestAnimationFrame(preTween);return;}
+    startExitAnim();
+  }
+  requestAnimationFrame(preTween);
+}
+function startExitAnim(){
+  const EXIT_PATH_N=buildArc([...WPS_N,[30,900]]);
+  const EXIT_PATH_T=buildArc([...WPS_T,[310,-600]]);
+  const EXIT_PATH_Z=buildArc([...WPS_Z,[-700,70]]);
+  trN.setAttribute('d',segD(buildArc(WPS_N).pts,buildArc(WPS_N).total,0,buildArc(WPS_N).total));
+  trT.setAttribute('d',segD(buildArc(WPS_T).pts,buildArc(WPS_T).total,0,buildArc(WPS_T).total));
+  trZ.setAttribute('d',segD(buildArc(WPS_Z).pts,buildArc(WPS_Z).total,0,buildArc(WPS_Z).total));
+  elN.setAttribute('d','');elT.setAttribute('d','');elZ.setAttribute('d','');
+  let t0e=null;
+  if(rafId) cancelAnimationFrame(rafId);
+  function frame(now){
+    if(t0e===null) t0e=now;
+    const raw=Math.min((now-t0e)/DUR_EXIT,1);
+    const ep=easeInOut(raw);
+    drawConveyorSnake(EXIT_PATH_N,elN,trN,ep);
+    drawConveyorSnake(EXIT_PATH_T,elT,trT,ep);
+    drawConveyorSnake(EXIT_PATH_Z,elZ,trZ,ep);
+    if(raw<1){
+      rafId=requestAnimationFrame(frame);
+    } else {
+      rafId=null;state='out';
+      elN.setAttribute('d','');elT.setAttribute('d','');elZ.setAttribute('d','');
+      trN.setAttribute('d','');trT.setAttribute('d','');trZ.setAttribute('d','');
+      resetSerifs();headStretch=0;hoverP=1;
+    }
+  }
+  rafId=requestAnimationFrame(frame);
+}
+function drawConveyorSnake(exitPath,elSnake,elTrace,ep){
+  const total=exitPath.total;
+  const snakeLen=SNAKE_LEN+(SNAKE_LEN*3)*ep;
+  const journey=total+snakeLen;
+  const head=ep*journey;
+  const tail=head-snakeLen;
+  const pts=exitPath.pts;
+  const lastSeg=Math.hypot(pts[pts.length-1].x-pts[pts.length-2].x,pts[pts.length-1].y-pts[pts.length-2].y);
+  const letterEnd=total-lastSeg;
+  const traceStart=Math.max(0,Math.min(letterEnd,tail));
+  if(traceStart<letterEnd){
+    elTrace.setAttribute('d',segD(pts,total,traceStart,letterEnd));
+  } else {
+    elTrace.setAttribute('d','');
+  }
+  if(head<=0){elSnake.setAttribute('d','');return;}
+  const sTail=Math.max(0,Math.min(total,tail));
+  if(head<=total){
+    elSnake.setAttribute('d',segD(pts,total,sTail,head));
+  } else {
+    const overshoot=head-total;
+    const last=pts[pts.length-1];
+    const prev=pts[pts.length-2];
+    const dx=last.x-prev.x,dy=last.y-prev.y;
+    const len=Math.hypot(dx,dy)||1;
+    const ex=last.x+(dx/len)*overshoot;
+    const ey=last.y+(dy/len)*overshoot;
+    elSnake.setAttribute('d',segD(pts,total,sTail,total)+` L ${ex.toFixed(1)},${ey.toFixed(1)}`);
+  }
+}
+
+const wrap=document.getElementById('wrap');
+let isMouseOver=false;
+wrap.addEventListener('mouseenter',()=>{ isMouseOver=true;  if(state==='in'&&animDone) animHover(-1); });
+wrap.addEventListener('mouseleave',()=>{ isMouseOver=false; if(state==='in'&&animDone) animHover(1);  });
+
+// Click vào SVG chữ NTZ → ra rồi vào lại
+document.getElementById('svg').addEventListener('click',(e)=>{
+  e.stopPropagation();
+  if(state==='in'){
+    runExit();
+    const waitExit=setInterval(()=>{
+      if(state==='out'){ clearInterval(waitExit); setTimeout(()=>run(),200); }
+    },100);
+  }
+});
+
+// Scroll indicator click → scroll xuống content
+document.getElementById('scroll-indicator').addEventListener('click',(e)=>{
+  e.stopPropagation();
+  document.querySelector('.content-sheet').scrollIntoView({behavior:'smooth'});
+});
+
+// Scroll check liên tục
+const heroSpace=document.querySelector('.hero-space');
+function checkNTZVisibility(){
+  const svgRect=document.getElementById('svg').getBoundingClientRect();
+  const ntzVisible=svgRect.bottom > 0 && svgRect.top < window.innerHeight;
+  if(!ntzVisible && state==='in') runExit();
+  if(ntzVisible && state==='out') run();
+}
+window.addEventListener('scroll', checkNTZVisibility, { passive:true });
+// Polling mỗi 200ms để xử lý trường hợp dừng scroll giữa chừng
+setInterval(checkNTZVisibility, 200);
+
+(function(){
+  const nameplate=document.getElementById('nameplate');
+  const searchBar=document.getElementById('search-bar');
+  const searchInput=document.getElementById('search-input');
+  const searchClose=document.getElementById('search-close');
+  const suggestions=document.getElementById('search-suggestions');
+  function openSearch(e){
+    e.stopPropagation();
+    nameplate.classList.add('hidden');
+    searchBar.classList.add('active');
+    suggestions.classList.add('active');
+    setTimeout(()=>searchInput.focus(),80);
+  }
+  function closeSearch(){
+    searchBar.classList.remove('active');
+    suggestions.classList.remove('active');
+    searchInput.value='';
+    nameplate.classList.remove('hidden');
+  }
+  nameplate.addEventListener('click',openSearch);
+  searchClose.addEventListener('click',(e)=>{e.stopPropagation();closeSearch();});
+  document.addEventListener('click',(e)=>{
+    if(!document.getElementById('nameplate-wrap').contains(e.target)) closeSearch();
+  });
+  searchInput.addEventListener('input',function(){
+    const q=this.value.toLowerCase();
+    // Query dynamically — config có thể render items mới sau khi script này chạy
+    const items=suggestions.querySelectorAll('.suggestion-item');
+    items.forEach(item=>{
+      const labelEl=item.querySelector('.sug-label');
+      const subEl=item.querySelector('.sug-sub');
+      if(!labelEl||!subEl) return;
+      const label=labelEl.textContent.toLowerCase();
+      const sub=subEl.textContent.toLowerCase();
+      item.style.display=(!q||label.includes(q)||sub.includes(q))?'':'none';
+    });
+  });
+})();
+
+(function(){
+  function syncHeight(){
+    const chipRow=document.querySelector('.chip-row');
+    const notif=document.querySelector('.notif-card');
+    if(chipRow&&notif){notif.style.minHeight=chipRow.offsetHeight+'px';}
+  }
+  window.addEventListener('load',syncHeight);
+  window.addEventListener('resize',syncHeight);
+  setTimeout(syncHeight,100);
+})();
+
+document.getElementById('nameplate-year').textContent = new Date().getFullYear();
+setTimeout(()=>{run();},400);
+})();
+</script>
+
+<!-- OST FLOATING BAR -->
+<div class="ost-bar" id="ost-bar">
+  <div class="ost-disc" id="ost-disc">
+    <img id="ost-disc-img" src="assets/icons/ost_music.png" alt="🎵"
+         style="width:20px;height:20px;object-fit:contain;"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <span style="display:none;font-size:15px;">🎵</span>
+  </div>
+  <div class="ost-meta">
+    <div class="ost-label">NTZ OST · <span id="ost-idx">1</span>/<span id="ost-total">1</span></div>
+    <div class="ost-title" id="ost-title">COUSER - START CRY</div>
+  </div>
+  <div class="ost-controls">
+    <button class="ost-btn" id="ost-prev" title="Bài trước">
+      <img src="assets/icons/ost_prev.png" alt="⏮" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">⏮</span>
+    </button>
+    <button class="ost-btn play" id="ost-play" title="Phát / Dừng">
+      <img id="ost-play-img" src="assets/icons/ost_play.png" alt="▶" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">▶</span>
+    </button>
+    <button class="ost-btn" id="ost-next" title="Bài tiếp">
+      <img src="assets/icons/ost_next.png" alt="⏭" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none;">⏭</span>
+    </button>
+  </div>
+  <div class="ost-progress-wrap" id="ost-progress">
+    <input type="range" class="ost-seek" id="ost-seek" min="0" max="1000" value="0" step="1">
+    <div class="ost-progress-track">
+      <div class="ost-progress-fill" id="ost-fill"></div>
+    </div>
+  </div>
+  <span class="ost-dur" id="ost-dur">0:00 / 0:00</span>
+  <div class="ost-sep"></div>
+  <div class="ost-vol-wrap">
+    <span class="ost-vol-icon" id="ost-mute-btn" title="Tắt/Bật âm">
+      <img id="ost-vol-img" src="assets/icons/ost_volume.png" alt="🔊"
+           style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+      <span id="ost-vol-emoji" style="display:none;font-size:12px;">🔊</span>
+    </span>
+    <input type="range" class="ost-vol-slider" id="ost-vol" min="0" max="100" value="70">
+  </div>
+</div>
+
+<!-- OST PLAYER SCRIPT -->
+<script>
+(function(){
+  const MUSIC_FOLDER     = (window.NTZ_CONFIG && window.NTZ_CONFIG.ost.music_folder) || 'assets/music/';
+  const HARDCODED_TRACKS = (window.NTZ_CONFIG && window.NTZ_CONFIG.ost.tracks.map(t => t.file)) || ['COUSER - START CRY.mp3'];
+
+  let tracks = [];
+  let currentIdx = 0;
+  let audio = null;
+  let isPlaying = false;
+  let isMuted = false;
+
+  const elPlay    = document.getElementById('ost-play');
+  const elPrev    = document.getElementById('ost-prev');
+  const elNext    = document.getElementById('ost-next');
+  const elTitle   = document.getElementById('ost-title');
+  const elDur     = document.getElementById('ost-dur');
+  const elFill    = document.getElementById('ost-fill');
+  const elProgress= document.getElementById('ost-progress');
+  const elSeek    = document.getElementById('ost-seek');
+  const elVol     = document.getElementById('ost-vol');
+  const elMute    = document.getElementById('ost-mute-btn');
+  const elDisc    = document.getElementById('ost-disc');
+  const elIdx     = document.getElementById('ost-idx');
+  const elTotal   = document.getElementById('ost-total');
+
+  function fmt(s){
+    if(!isFinite(s)||isNaN(s)) return '0:00';
+    const m=Math.floor(s/60), sc=Math.floor(s%60);
+    return m+':'+(sc<10?'0':'')+sc;
+  }
+  function prettyName(filename){
+    if(window.NTZ_CONFIG && window.NTZ_CONFIG.ost.tracks){
+      const found = window.NTZ_CONFIG.ost.tracks.find(t => t.file === filename);
+      if(found && found.name) return found.name;
+    }
+    return filename.replace(/\.mp3$/i,'');
+  }
+
+  function loadTrack(idx, autoplay){
+    if(!tracks.length) return;
+    currentIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
+    const t = tracks[currentIdx];
+    elTitle.textContent = t.name;
+    elIdx.textContent   = currentIdx + 1;
+    if(audio){ audio.pause(); audio.src = ''; }
+    audio = new Audio(MUSIC_FOLDER + t.file);
+    audio.volume = elVol.value / 100;
+    audio.muted  = isMuted;
+    audio.addEventListener('loadedmetadata', ()=>{
+      elDur.textContent = '0:00 / ' + fmt(audio.duration);
+    });
+    audio.addEventListener('timeupdate', ()=>{
+      if(!isSeeking) {
+        const pct = audio.duration ? (audio.currentTime / audio.duration * 1000) : 0;
+        elSeek.value = pct;
+        elFill.style.width = (pct / 10) + '%';
+      }
+      elDur.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+    });
+    audio.addEventListener('ended', ()=>{
+      if(tracks.length === 1) {
+        // Chỉ 1 bài: tua về đầu, phát lại, GIỮ icon đang phát
+        audio.currentTime = 0;
+        audio.play().catch(()=>{});
+        setPlaying(true);
+      } else {
+        loadTrack(currentIdx + 1, true);
+      }
+    });
+    audio.addEventListener('error', ()=>{ elTitle.textContent = t.name + ' (lỗi load)'; setPlaying(false); });
+    if(autoplay){ audio.play().catch(()=>{}); setPlaying(true); }
+    else setPlaying(false);
+  }
+
+  function setPlaying(v){
+    isPlaying = v;
+    const playImg = document.getElementById('ost-play-img');
+    if(playImg && playImg.style.display !== 'none'){
+      playImg.src = v ? 'assets/icons/ost_pause.png' : 'assets/icons/ost_play.png';
+    } else {
+      elPlay.querySelector('span').textContent = v ? '⏸' : '▶';
+    }
+    if(v) elDisc.classList.add('spinning');
+    else  elDisc.classList.remove('spinning');
+  }
+
+  function togglePlay(){
+    if(!tracks.length) return;
+    if(!audio) loadTrack(0, true);
+    else if(isPlaying){ audio.pause(); setPlaying(false); }
+    else { audio.play().catch(()=>{}); setPlaying(true); }
+  }
+
+  elPlay.addEventListener('click', togglePlay);
+  elPrev.addEventListener('click', ()=>{ loadTrack(currentIdx - 1, isPlaying); });
+  elNext.addEventListener('click', ()=>{ loadTrack(currentIdx + 1, isPlaying); });
+
+  elVol.addEventListener('input', ()=>{
+    if(audio) audio.volume = elVol.value / 100;
+    if(+elVol.value === 0){ isMuted=true; updateVolIcon(true); }
+    else { isMuted=false; if(audio) audio.muted=false; updateVolIcon(false); }
+  });
+  elMute.addEventListener('click', ()=>{
+    isMuted = !isMuted;
+    if(audio) audio.muted = isMuted;
+    updateVolIcon(isMuted);
+  });
+
+  function updateVolIcon(muted){
+    const img   = document.getElementById('ost-vol-img');
+    const emoji = document.getElementById('ost-vol-emoji');
+    if(img && img.style.display !== 'none'){
+      img.src = muted ? 'assets/icons/ost_mute.png' : 'assets/icons/ost_volume.png';
+    } else if(emoji){
+      emoji.textContent = muted ? '🔇' : '🔊';
+    }
+  }
+
+  // Seek bar — kéo hoặc click để tua
+  let isSeeking = false;
+  elSeek.addEventListener('mousedown', ()=>{ isSeeking = true; });
+  elSeek.addEventListener('touchstart', ()=>{ isSeeking = true; }, {passive:true});
+  elSeek.addEventListener('input', ()=>{
+    const pct = elSeek.value / 1000;
+    elFill.style.width = (pct * 100) + '%';
+    if(audio && audio.duration) {
+      elDur.textContent = fmt(pct * audio.duration) + ' / ' + fmt(audio.duration);
+    }
+  });
+  elSeek.addEventListener('change', ()=>{
+    isSeeking = false;
+    if(audio && audio.duration) {
+      audio.currentTime = (elSeek.value / 1000) * audio.duration;
+    }
+  });
+
+  function initTracks(list){
+    tracks = list.map(f => ({ file: f, name: prettyName(f) }));
+    elTotal.textContent = tracks.length;
+    if(tracks.length) loadTrack(0, false); // mặc định KHÔNG tự phát
+  }
+
+  initTracks(HARDCODED_TRACKS);
+
+  // Toggle OST bar — mặc định TẮT
+  const ostBar    = document.getElementById('ost-bar');
+  const toggleBtn = document.getElementById('ost-toggle-btn');
+  let ostVisible  = false; // mặc định ẩn
+
+  function setOstVisible(v) {
+    ostVisible = v;
+    if (v) {
+      ostBar.classList.add('visible');
+      toggleBtn.classList.add('active');
+    } else {
+      ostBar.classList.remove('visible');
+      toggleBtn.classList.remove('active');
+      // Nếu đang phát thì dừng khi ẩn bar
+      if (isPlaying && audio) { audio.pause(); setPlaying(false); }
+    }
+  }
+
+  toggleBtn.addEventListener('click', () => setOstVisible(!ostVisible));
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     SOUND ENGINE  (file-based)
+     ─────────────────────────────────────────
+     Đặt các file âm thanh vào: assets/sfx/
+     Tên file:
+       sfx_hover.mp3      — hover vào card / element
+       sfx_click.mp3      — click nút thông thường
+       sfx_swoosh.mp3     — mở search bar (hero)
+       sfx_ding.mp3       — click chip / nameplate tag
+       sfx_tick.mp3       — click scroll indicator
+       sfx_nav_search.mp3 — mở search ở navbar
+       sfx_stat.mp3       — hover stat card
+       sfx_ost_toggle.mp3 — bật/tắt OST player
+       sfx_ost_prev.mp3   — nút bài trước
+       sfx_ost_next.mp3   — nút bài tiếp
+       sfx_ntz_reset.mp3  — click chữ NTZ reset animation
+       sfx_search_close.mp3 — đóng search bar
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const SFX_FOLDER = 'assets/sfx/';
+  const cache = {};
+
+  function play(filename, volume){
+    const path = SFX_FOLDER + filename;
+    try {
+      if(!cache[filename]){
+        cache[filename] = new Audio(path);
+        cache[filename].preload = 'auto';
+      }
+      const sfx = cache[filename].cloneNode();
+      sfx.volume = volume !== undefined ? volume : 0.5;
+      sfx.play().catch(()=>{});
+    } catch(e){}
+  }
+
+  function sfxHoverCard()    { play('sfx_hover.mp3',        0.35); }
+  function sfxClick()        { play('sfx_click.mp3',        0.50); }
+  function sfxSwoosh()       { play('sfx_swoosh.mp3',       0.45); }
+  function sfxDing()         { play('sfx_ding.mp3',         0.45); }
+  function sfxTick()         { play('sfx_tick.mp3',         0.40); }
+  function sfxNavSearch()    { play('sfx_nav_search.mp3',   0.40); }
+  function sfxStat()         { play('sfx_stat.mp3',         0.30); }
+  function sfxOstToggle()    { play('sfx_ost_toggle.mp3',   0.45); }
+  function sfxOstPrev()      { play('sfx_ost_prev.mp3',     0.45); }
+  function sfxOstNext()      { play('sfx_ost_next.mp3',     0.45); }
+  function sfxNtzReset()     { play('sfx_ntz_reset.mp3',    0.45); }
+  function sfxSearchClose()  { play('sfx_search_close.mp3', 0.35); }
+
+  // ── Bind events ──
+
+  document.querySelectorAll('.game-card').forEach(card=>{
+    card.addEventListener('mouseenter', sfxHoverCard);
+  });
+  document.querySelectorAll('.game-btn').forEach(btn=>{
+    btn.addEventListener('click', sfxClick);
+  });
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', sfxDing);
+  });
+
+  const scrollInd = document.getElementById('scroll-indicator');
+  if(scrollInd) scrollInd.addEventListener('click', sfxTick);
+
+  document.querySelectorAll('.stat-card').forEach(card=>{
+    card.addEventListener('mouseenter', sfxStat);
+  });
+
+  const ostToggleBtn = document.getElementById('ost-toggle-btn');
+  if(ostToggleBtn) ostToggleBtn.addEventListener('click', sfxOstToggle);
+
+  const ostPlay = document.getElementById('ost-play');
+  if(ostPlay) ostPlay.addEventListener('click', sfxClick);
+  const ostPrev = document.getElementById('ost-prev');
+  if(ostPrev) ostPrev.addEventListener('click', sfxOstPrev);
+  const ostNext = document.getElementById('ost-next');
+  if(ostNext) ostNext.addEventListener('click', sfxOstNext);
+
+  document.querySelectorAll('.nav-login').forEach(btn=>{
+    btn.addEventListener('click', sfxClick);
+  });
+  document.querySelectorAll('.nameplate-tag').forEach(tag=>{
+    tag.addEventListener('click', sfxDing);
+  });
+
+  const nameplateEl = document.getElementById('nameplate');
+  if(nameplateEl) nameplateEl.addEventListener('click', sfxSwoosh);
+  const searchCloseEl = document.getElementById('search-close');
+  if(searchCloseEl) searchCloseEl.addEventListener('click', sfxSearchClose);
+
+  const svgEl = document.getElementById('svg');
+  if(svgEl) svgEl.addEventListener('click', sfxNtzReset);
+
+  // Expose for navbar search
+  window.NTZ_SFX = { swoosh: sfxSwoosh, navSearch: sfxNavSearch, click: sfxClick, tick: sfxTick };
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     LANGUAGE & THEME DROPDOWNS
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  // ── Dropdown toggle helper ──
+  function setupDropdown(wrapId){
+    const wrap = document.getElementById(wrapId);
+    const btn  = wrap.querySelector('.nav-dropdown-btn');
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      // Close others
+      document.querySelectorAll('.nav-dropdown-wrap.open').forEach(w => {
+        if(w !== wrap) w.classList.remove('open');
+      });
+      wrap.classList.toggle('open');
+    });
+    document.addEventListener('click', () => wrap.classList.remove('open'));
+    wrap.querySelector('.nav-dropdown-panel').addEventListener('click', e => e.stopPropagation());
+  }
+  setupDropdown('lang-wrap');
+  setupDropdown('theme-wrap');
+
+  // ── Language ──
+  const LANGS = {
+    en: { flag:'🇬🇧', label:'EN' },
+    vi: { flag:'🇻🇳', label:'VI' }
+  };
+  window.setLang = function(lang){
+    const flagEl  = document.getElementById('lang-flag');
+    const labelEl = document.getElementById('lang-label');
+    if(flagEl)  flagEl.textContent  = LANGS[lang].flag;
+    if(labelEl) labelEl.textContent = LANGS[lang].label;
+    document.querySelectorAll('#lang-panel .nd-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    document.getElementById('lang-wrap').classList.remove('open');
+
+    // ── i18n thật sự ──
+    const T = {
+      en: {
+        'nav-home': 'Home', 'nav-games': 'Games', 'nav-about': 'About', 'nav-community': 'Community', 'nav-login': 'Login',
+        'section-label': '🎬 Introduction',
+        'section-title': 'About<br>NTZ Studio',
+        'section-sub': 'Watch the video to learn more about who we are and what we create.',
+        'g1-genre': 'Survival · Exploration', 'g1-title': 'NTZ: Void Sector', 'g1-desc': 'Survive in the dark void, build your station and face dangers from the universe.', 'g1-players': '1.2k playing',
+        'g2-genre': 'Action · PvP',            'g2-title': 'NTZ: BloodArena',  'g2-desc': 'A bloody arena where only the strongest survive — choose weapons, upgrade skills and fight.', 'g2-players': '3.8k playing',
+        'g3-genre': 'RPG · Adventure',         'g3-title': 'NTZ: WildLands',   'g3-desc': 'Vast open world with vibrant ecosystems, rich quests and realistic survival mechanics.', 'g3-players': '890 playing',
+        'g4-genre': 'Magic · Tower Defense',   'g4-title': 'NTZ: Arcane Keep', 'g4-desc': 'Summon magic, build defense towers and protect your kingdom from waves of mysterious monsters.', 'g4-players': '520 playing',
+        'btn-play': 'Play now',
+        'footer-desc': 'NOW ON ROBLOX', 'footer-copy': '© 2026 NTZ Studio',
+        'search-placeholder': 'Search NTZ Noob Team...',
+        'nav-search-text': 'Search NTZ...',
+        'lang-label-nd': 'Language', 'theme-label-nd': 'Interface',
+        'theme-light': 'Light', 'theme-dark': 'Dark', 'theme-system': 'System',
+        'studio-desc': '"NTZ always brings the best experience to players!"',
+        'notif-role': 'Owner · NTZ Noob Team',
+        'notif-date': '📅 May 19, 2026 · 08:00 AM',
+        'notif-body': 'The new season has officially started! Join now to receive limited rewards and experience the brand new map. 🎮',
+        'chip-1': 'Events', 'chip-2': 'Hot Games', 'chip-3': 'New Releases', 'chip-4': 'Learn More',
+        'stat-1': 'PROJECTS', 'stat-2': 'MEMBERS', 'stat-3': 'RATING',
+        'rank-legend-title': 'Member Ranks',
+        'rank-owner-desc': 'Platinum — white & blue',
+        'rank-coowner-desc': 'Platinum Red — white & red',
+        'rank-codev-desc': 'Green — dark & bright green',
+        'rank-admin-desc': 'Gold — gold & red',
+        'intro-p1': `<span class="gname ntz">NTZ</span> was founded around <mark class="hl">2020</mark> following the collapse of <span class="gname extteam">NOOB TEAM</span>. With a sustainable vision, <span class="gname ntz">NTZ</span> reached its <mark class="hl">first year</mark> with <strong>9 members</strong> — including <strong>3 core members</strong>: <span class="gname platinum">Dũng</span>, <mark class="hl">Huy</mark>, and <mark class="hl">Khang</mark>. The <em class="it">founder</em> is <span class="gname platinum">Dũng</span>, the <em class="it">co-founder</em> is Huy. <span class="gname ntz">NTZ</span> has persisted throughout Roblox's growth to this day, with Groups, communities, and Guilds bearing the name <span class="gname ntz">NTZ</span> or <span class="gname ntz">NTZ Studio</span>. Members who grew alongside the studio gradually adopted the <span class="gname ntz">NTZ_</span> prefix as a mark of a new milestone.`,
+        'intro-p2': `In <em class="it">Year 2</em>, <span class="gname ntz">NTZ</span> experienced a <strong>betrayal</strong> from core members and entered its <mark class="hl dark">darkest period</mark> with only <strong>4 members</strong> — Huy and Tính instigated the crowd and caused the <em class="it">complete collapse</em>. Those who stayed were <span class="gname green">Phú</span>, Kiệt, <span class="gname goldred">Un</span>, <span class="gname goldred">Long (Dezil)</span>, and <span class="gname platinum-red">Tèo</span>. Against all odds, <span class="gname ntz">NTZ</span> truly <mark class="hl">rose again</mark> in Year 3 — <mark class="hl">31/10/2023</mark> marked a pivotal moment for the comeback. <span class="gname ntz">NTZ</span> then welcomed back veterans <mark class="hl">Khang</mark>, <mark class="hl">Hưng</mark>, and <mark class="hl">Kuso</mark>; and new members <span class="gname goldred">Điệp</span>, <span class="gname goldred">An (Joxes)</span>, <mark class="hl">Nam</mark>, and <mark class="hl">Hiển (Bo)</mark>.`,
+        'intro-p3': `With a powerful comeback, the <em class="it">Founder</em> made the decision that <span class="gname ntz">NTZ</span> would become <mark class="hl">a real game studio</mark>. On <mark class="hl">16/10/2024</mark>, development began with <strong>4 core projects</strong>: <span class="gname couser">Couser Game</span>, <span class="gname legend">Legend Warriors</span>, <span class="gname death">Death Spirit</span>, and <span class="gname ntzitems">NTZ Items</span> — later, <span class="gname ntzitems">NTZ Items</span> was replaced by <span class="gname buird">BUIRD</span>, a game with incredibly high <strong>creativity and survival</strong> elements! <span class="gname ntzitems">NTZ Items</span> is now reborn as <span class="gname ntz">NTZ HUB</span> — the very page you are viewing right now.`,
+        'intro-p4': `During development, <span class="gname ntz">NTZ</span> founded the sub-team <span class="gname subteam">PHD</span> <em class="it">(<span class="gname green">Phú</span>, Huy, <span class="gname platinum">Dũng</span>)</em> — later renamed <span class="gname subteam">HTD</span> — serving as a <em class="it">sub-team</em> of <span class="gname ntz">NTZ</span>. The team was later disbanded when <span class="gname ntz">NTZ</span> collapsed. Currently, <span class="gname ntz">NTZ</span> will <mark class="hl dark">not recruit any new members</mark> to maintain <strong>exclusivity</strong>. Additionally, after the <mark class="hl">"Free World"</mark> update, <strong>all members may join any external team while retaining their position within <span class="gname ntz">NTZ</span></strong> — unless they leave. All member benefits remain fully granted!`,
+      },
+      vi: {
+        'nav-home': 'Trang chủ', 'nav-games': 'Games', 'nav-about': 'Về chúng tôi', 'nav-community': 'Cộng đồng', 'nav-login': 'Đăng nhập',
+        'section-label': '🎬 Giới thiệu',
+        'section-title': 'Về<br>NTZ Studio',
+        'section-sub': 'Xem video để tìm hiểu thêm về chúng tôi là ai và những gì chúng tôi tạo ra.',
+        'g1-genre': 'Sinh tồn · Khám phá', 'g1-title': 'NTZ: Void Sector', 'g1-desc': 'Sinh tồn trong không gian tối tăm, xây dựng trạm của bạn và đối mặt với những mối nguy hiểm từ vũ trụ.', 'g1-players': '1.2k đang chơi',
+        'g2-genre': 'Hành động · PvP',     'g2-title': 'NTZ: BloodArena',  'g2-desc': 'Đấu trường đẫm máu nơi chỉ kẻ mạnh nhất tồn tại — chọn vũ khí, nâng cấp kỹ năng và chiến đấu.', 'g2-players': '3.8k đang chơi',
+        'g3-genre': 'Nhập vai · Phiêu lưu','g3-title': 'NTZ: WildLands',   'g3-desc': 'Thế giới mở rộng lớn với hệ sinh thái sống động, nhiệm vụ phong phú và cơ chế sinh tồn chân thực.', 'g3-players': '890 đang chơi',
+        'g4-genre': 'Ma thuật · Tower Defense','g4-title': 'NTZ: Arcane Keep','g4-desc': 'Triệu hồi phép thuật, xây dựng tháp phòng thủ và bảo vệ vương quốc khỏi những làn sóng quái vật bí ẩn.', 'g4-players': '520 đang chơi',
+        'btn-play': 'Chơi ngay',
+        'footer-desc': 'NOW ON ROBLOX', 'footer-copy': '© 2026 NTZ Studio',
+        'search-placeholder': 'Tìm kiếm NTZ Noob Team...',
+        'nav-search-text': 'Tìm kiếm NTZ...',
+        'lang-label-nd': 'Ngôn ngữ', 'theme-label-nd': 'Giao diện',
+        'theme-light': 'Sáng', 'theme-dark': 'Tối', 'theme-system': 'System',
+        'studio-desc': '"NTZ luôn mang đến trải nghiệm tuyệt vời nhất cho người chơi!"',
+        'notif-role': 'Chủ sở hữu · NTZ Noob Team',
+        'notif-date': '📅 19 tháng 5, 2026 · 08:00 SA',
+        'notif-body': 'Mùa giải mới đã chính thức bắt đầu! Tham gia ngay để nhận phần thưởng giới hạn và trải nghiệm bản đồ hoàn toàn mới. 🎮',
+        'chip-1': 'Sự Kiện', 'chip-2': 'Game Hot', 'chip-3': 'Mới Ra Mắt', 'chip-4': 'Tìm Hiểu Thêm',
+        'stat-1': 'DỰ ÁN', 'stat-2': 'THÀNH VIÊN', 'stat-3': 'RATING',
+        'rank-legend-title': 'Phân cấp thành viên',
+        'rank-owner-desc': 'Bạch Kim — trắng xanh dương',
+        'rank-coowner-desc': 'Bạch Kim Đỏ — trắng đỏ',
+        'rank-codev-desc': 'Xanh Lá — xanh đậm sáng',
+        'rank-admin-desc': 'Vàng Kim — vàng đỏ',
+        'intro-p1': `<span class="gname ntz">NTZ</span> được thành lập vào khoảng <mark class="hl">2020</mark> sau sự sụp đổ của <span class="gname extteam">NOOB TEAM</span>, với hướng phát triển bền vững <span class="gname ntz">NTZ</span> đã đạt <mark class="hl">1 năm tuổi</mark> với <strong>9 thành viên</strong> — trong đó có <strong>3 thành viên cốt cán</strong> là <span class="gname platinum">Dũng</span>, <mark class="hl">Huy</mark> và <mark class="hl">Khang</mark>. Người <em class="it">sáng lập</em> là <span class="gname platinum">Dũng</span>, người <em class="it">đồng sáng lập</em> là Huy. <span class="gname ntz">NTZ</span> tồn tại xuyên suốt thời gian hình thành và phát triển của <strong>Roblox</strong> đến ngày hôm nay, với các Group, cộng đồng, Guild mang tên <span class="gname ntz">NTZ</span> hay <span class="gname ntz">NTZ Studio</span>. Các thành viên theo sự phát triển dần cũng có tên đệm <span class="gname ntz">NTZ_</span> đánh dấu mốc phát triển mới.`,
+        'intro-p2': `Sang <em class="it">năm thứ 2</em>, <span class="gname ntz">NTZ</span> ghi nhận <strong>cuộc đả kích</strong> từ các thành viên cốt cán và bước vào <mark class="hl dark">thời kì đen tối nhất</mark> với chỉ <strong>4 thành viên</strong> — Huy và Tính là người kích động đám đông làm <em class="it">tan rã toàn bộ</em>. Phe ở lại gồm <span class="gname green">Phú</span>, Kiệt, <span class="gname goldred">Un</span>, <span class="gname goldred">Long (Dezil)</span> và <span class="gname platinum-red">Tèo</span>. Với một <em class="it">hy vọng mong manh</em>, <span class="gname ntz">NTZ</span> đã thực sự <mark class="hl">hồi sinh</mark> vào năm thứ 3 — ngày <mark class="hl">31/10/2023</mark> đánh dấu mốc quan trọng cho sự trở lại. <span class="gname ntz">NTZ</span> sau đó đón nhận thành viên cũ gồm <mark class="hl">Khang</mark>, <mark class="hl">Hưng</mark> và <mark class="hl">Kuso</mark>; thành viên mới gồm <span class="gname goldred">Điệp</span>, <span class="gname goldred">An (Joxes)</span>, <mark class="hl">Nam</mark> và <mark class="hl">Hiển (Bo)</mark>.`,
+        'intro-p3': `Với sự trở lại mạnh mẽ, người <em class="it">Sáng Lập</em> đưa ra quyết định <span class="gname ntz">NTZ</span> sẽ trở thành <mark class="hl">một Studio game thật sự</mark>. Ngày <mark class="hl">16/10/2024</mark> bắt đầu công cuộc lập trình với <strong>4 dự án chính</strong>: <span class="gname couser">Couser Game</span>, <span class="gname legend">Legend Warriors</span>, <span class="gname death">Death Spirit</span> và <span class="gname ntzitems">NTZ Items</span> — về sau <span class="gname ntzitems">NTZ Items</span> được thay thế bởi <span class="gname buird">BUIRD</span>, một game mang tính <strong>sáng tạo và sinh tồn</strong> cực kì cao! <span class="gname ntzitems">NTZ Items</span> nay trở thành <span class="gname ntz">NTZ HUB</span> — chính trang bạn đang xem lúc này.`,
+        'intro-p4': `Trong quá trình phát triển, <span class="gname ntz">NTZ</span> cho ra đời team <span class="gname subteam">PHD</span> <em class="it">(<span class="gname green">Phú</span>, Huy, <span class="gname platinum">Dũng</span>)</em> — sau đổi tên thành <span class="gname subteam">HTD</span> — phục vụ như <em class="it">team con</em> của <span class="gname ntz">NTZ</span>. Team này sau bị bỏ dỡ khi <span class="gname ntz">NTZ</span> tan rã. Hiện nay <span class="gname ntz">NTZ</span> sẽ <mark class="hl dark">không tuyển thêm bất kì thành viên nào</mark> nhằm đảm bảo sự <strong>độc quyền</strong>. Đồng thời, sau update <mark class="hl">"Free World"</mark>, <strong>mọi thành viên đều có thể gia nhập bất kì team nào khác bên ngoài nhưng vẫn giữ chức vụ trong <span class="gname ntz">NTZ</span></strong> — trừ khi thoát team. Mọi quyền lợi của thành viên đều được cấp đầy đủ!`,
+      }
+    };
+    const t = T[lang];
+
+    // Nav links text
+    const navTexts = document.querySelectorAll('.nav-text');
+    const navKeys = ['nav-home','nav-games','nav-about','nav-community','nav-login'];
+    navTexts.forEach((el,i) => { if(navKeys[i]) el.textContent = t[navKeys[i]]; });
+
+    // Section header
+    const sl = document.querySelector('.section-label'); if(sl) sl.innerHTML = t['section-label'];
+    const st = document.querySelector('.section-title'); if(st) st.innerHTML = t['section-title'];
+    const ss = document.querySelector('.section-sub');   if(ss) ss.textContent = t['section-sub'];
+
+    // Game cards
+    const cards = document.querySelectorAll('.game-card');
+    const ckeys = ['g1','g2','g3','g4'];
+    cards.forEach((card,i) => {
+      const k = ckeys[i]; if(!k) return;
+      const genre = card.querySelector('.game-genre');   if(genre) genre.textContent = t[k+'-genre'];
+      const title = card.querySelector('.game-title');   if(title) title.textContent = t[k+'-title'];
+      const desc  = card.querySelector('.game-desc');    if(desc)  desc.textContent  = t[k+'-desc'];
+      const play  = card.querySelector('.game-btn');     if(play)  play.textContent  = t['btn-play'];
+      const plyr  = card.querySelector('.game-players'); if(plyr){
+        const dot = plyr.querySelector('.dot');
+        plyr.innerHTML = ''; if(dot) plyr.appendChild(dot);
+        plyr.appendChild(document.createTextNode(' '+t[k+'-players']));
+      }
+    });
+
+    // Footer
+    const fdesc = document.querySelector('.footer-brand-desc'); if(fdesc) fdesc.textContent = t['footer-desc'];
+    const fcopy = document.querySelector('.footer-copy-new');   if(fcopy) fcopy.textContent = t['footer-copy'];
+
+    // Search placeholder
+    const sp = document.getElementById('search-input'); if(sp) sp.placeholder = t['search-placeholder'];
+    const nsp = document.getElementById('nav-search-input'); if(nsp) nsp.placeholder = t['search-placeholder'];
+
+    // Dropdown labels
+    document.querySelectorAll('.nd-label').forEach(el => {
+      if(el.closest('#lang-panel'))  el.textContent = t['lang-label-nd'];
+      if(el.closest('#theme-panel')) el.textContent = t['theme-label-nd'];
+    });
+
+    // Nav search pill text
+    const nst = document.querySelector('.nav-search-text'); if(nst) nst.textContent = t['nav-search-text'];
+
+    // Theme dropdown options (text node sau icon)
+    const tLight  = document.getElementById('theme-light');
+    const tDark   = document.getElementById('theme-dark');
+    const tSystem = document.getElementById('theme-system');
+    function setThemeItemText(el, text){
+      if(!el) return;
+      // Text nằm sau span .nd-icon-img
+      el.childNodes.forEach(n => { if(n.nodeType === 3) n.textContent = ' ' + text; });
+    }
+    setThemeItemText(tLight,  t['theme-light']);
+    setThemeItemText(tDark,   t['theme-dark']);
+    setThemeItemText(tSystem, t['theme-system']);
+    const sd = document.querySelector('.studio-desc'); if(sd) sd.textContent = t['studio-desc'];
+
+    // Notification
+    const nr = document.querySelector('.notif-role'); if(nr) nr.textContent = t['notif-role'];
+    const nd = document.querySelector('.notif-date'); if(nd) nd.textContent = t['notif-date'];
+    const nb = document.querySelector('.notif-body'); if(nb) nb.textContent = t['notif-body'];
+
+    // Chips
+    const chips = document.querySelectorAll('.chip');
+    ['chip-1','chip-2','chip-3','chip-4'].forEach((k,i) => { if(chips[i]) chips[i].textContent = t[k]; });
+
+    // Stats
+    const statLabels = document.querySelectorAll('.stat-label');
+    ['stat-1','stat-2','stat-3'].forEach((k,i) => { if(statLabels[i]) statLabels[i].textContent = t[k]; });
+
+    // Intro paragraphs (history section)
+    ['intro-p1','intro-p2','intro-p3','intro-p4'].forEach(k => {
+      const el = document.getElementById(k);
+      if(el && t[k]) el.innerHTML = t[k];
+    });
+
+    // Rank legend
+    const rlt = document.getElementById('rank-legend-title'); if(rlt) rlt.textContent = t['rank-legend-title'];
+    const rod = document.getElementById('rank-owner-desc');   if(rod) rod.textContent = t['rank-owner-desc'];
+    const rcd = document.getElementById('rank-coowner-desc'); if(rcd) rcd.textContent = t['rank-coowner-desc'];
+    const rdd = document.getElementById('rank-codev-desc');   if(rdd) rdd.textContent = t['rank-codev-desc'];
+    const rad = document.getElementById('rank-admin-desc');   if(rad) rad.textContent = t['rank-admin-desc'];
+
+    localStorage.setItem('ntz-lang', lang);
+  };
+
+  // ── Theme ──
+  const THEMES = {
+    light:  { img:'assets/icons/theme_light.png'  },
+    dark:   { img:'assets/icons/theme_dark.png'   },
+    system: { img:'assets/icons/theme_system.png' }
+  };
+  function applyTheme(theme){
+    const root = document.documentElement;
+    let isDark = false;
+    if(theme === 'dark')  isDark = true;
+    if(theme === 'system') isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }
+  window.setTheme = function(theme){
+    const btnImg = document.getElementById('theme-btn-img');
+    if(btnImg) btnImg.src = THEMES[theme].img;
+    document.querySelectorAll('#theme-panel .nd-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('theme-' + theme).classList.add('active');
+    document.getElementById('theme-wrap').classList.remove('open');
+    localStorage.setItem('ntz-theme', theme);
+    applyTheme(theme);
+  };
+  // Init from saved preference
+  const saved = localStorage.getItem('ntz-theme') || 'system';
+  setTheme(saved);
+  // Init lang
+  const savedLang = localStorage.getItem('ntz-lang') || 'en';
+  setLang(savedLang);
+  // Watch system change
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if((localStorage.getItem('ntz-theme') || 'system') === 'system') applyTheme('system');
+  });
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     NAVBAR SEARCH LOGIC
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const heroSpace      = document.querySelector('.hero-space');
+  const navSearchPill  = document.getElementById('nav-search-pill');
+  const navSearchActive= document.getElementById('nav-search-active');
+  const navInput       = document.getElementById('nav-search-input');
+  const navClose       = document.getElementById('nav-search-close');
+  const navSuggestions = document.getElementById('nav-suggestions');
+  // KHÔNG cache navSugItems ở đây — config có thể render items mới sau khi script này chạy
+
+  // Pill luôn hiện khi scroll qua hero (giữ logic cũ để pill xuất hiện đúng lúc)
+  function checkNavSearch(){
+    if(!heroSpace || !navSearchPill) return;
+    const rect = heroSpace.getBoundingClientRect();
+    const heroPassed = rect.bottom < 80;
+    const searchIsOpen = navSearchActive && navSearchActive.classList.contains('visible');
+    if(heroPassed && !searchIsOpen) navSearchPill.classList.add('visible');
+    else if(!heroPassed) { navSearchPill.classList.remove('visible'); closeNavSearch(); }
+  }
+  window.addEventListener('scroll', checkNavSearch, {passive:true});
+  checkNavSearch();
+
+  function openNavSearch(e){
+    if(e) e.stopPropagation();
+    const wrap  = document.getElementById('nav-search-wrap');
+    const navbar= document.querySelector('.navbar');
+    const overlay = document.getElementById('search-overlay');
+    navSearchPill.classList.remove('visible');
+    navSearchActive.classList.add('visible');
+    navSuggestions.classList.add('visible');
+    if(navbar) navbar.classList.add('search-open');
+    if(overlay) overlay.classList.add('active');
+    setTimeout(()=>{ if(navInput) navInput.focus(); }, 60);
+    if(window.NTZ_SFX) window.NTZ_SFX.navSearch();
+  }
+
+  function closeNavSearch(){
+    const navbar= document.querySelector('.navbar');
+    const overlay = document.getElementById('search-overlay');
+    navSearchActive.classList.remove('visible');
+    navSuggestions.classList.remove('visible');
+    if(navbar) navbar.classList.remove('search-open');
+    if(overlay) overlay.classList.remove('active');
+    if(navInput) navInput.value = '';
+    // Hiện lại pill nếu hero đã qua
+    const rect = heroSpace ? heroSpace.getBoundingClientRect() : null;
+    if(rect && rect.bottom < 80) navSearchPill.classList.add('visible');
+  }
+
+  if(navSearchPill) navSearchPill.addEventListener('click', openNavSearch);
+  const overlay = document.getElementById('search-overlay');
+  if(overlay) overlay.addEventListener('click', closeNavSearch);
+  if(navClose) navClose.addEventListener('click', e=>{ e.stopPropagation(); closeNavSearch(); });
+  document.addEventListener('click', e=>{
+    const wrap = document.getElementById('nav-search-wrap');
+    if(wrap && !wrap.contains(e.target)) closeNavSearch();
+  });
+
+  // Filter suggestions
+  if(navInput){
+    navInput.addEventListener('input', function(){
+      const q = this.value.toLowerCase();
+      // Query dynamically — config có thể render items mới sau khi script này chạy
+      const items = navSuggestions ? navSuggestions.querySelectorAll('.nav-sug-item') : [];
+      items.forEach(item=>{
+        const labelEl = item.querySelector('.nav-sug-label');
+        const subEl   = item.querySelector('.nav-sug-sub');
+        if(!labelEl || !subEl) return;
+        const label = labelEl.textContent.toLowerCase();
+        const sub   = subEl.textContent.toLowerCase();
+        item.style.display = (!q || label.includes(q) || sub.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     OST BAR ADAPTIVE COLOR
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const ostBar = document.getElementById('ost-bar');
+  const navbar = document.querySelector('.navbar');
+
+  function getSheetRect(){
+    const sheet = document.querySelector('.content-sheet');
+    return sheet ? sheet.getBoundingClientRect() : null;
+  }
+
+  function isOverSheet(cx, cy){
+    const r = getSheetRect();
+    if(!r) return false;
+    return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+  }
+
+  function isDarkTheme(){
+    const theme = document.documentElement.getAttribute('data-theme');
+    if(theme === 'dark') return true;
+    if(theme === 'light') return false;
+    // system
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function checkOstBarColor(){
+    if(!ostBar) return;
+    const rect = ostBar.getBoundingClientRect();
+    if(rect.width === 0) return;
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    const overSheet = isOverSheet(cx, cy);
+    // light-mode chỉ khi đè lên sheet VÀ theme đang sáng
+    if(overSheet && !isDarkTheme()) ostBar.classList.add('light-mode');
+    else                             ostBar.classList.remove('light-mode');
+  }
+
+  function checkNavbarColor(){
+    if(!navbar) return;
+    const navCY = 18 + 27;
+    const navCX = window.innerWidth / 2;
+    const overSheet = isOverSheet(navCX, navCY);
+    const lightMode = overSheet && !isDarkTheme();
+    if(lightMode) navbar.classList.add('light-mode');
+    else          navbar.classList.remove('light-mode');
+
+    // Suggestions dropdown
+    const suggestions = document.getElementById('nav-suggestions');
+    if(suggestions){
+      const sugCY = 80 + 10;
+      const sugOverlap = isOverSheet(navCX, sugCY);
+      const sugLight = sugOverlap && !isDarkTheme();
+      if(sugLight) suggestions.classList.add('light-mode');
+      else         suggestions.classList.remove('light-mode');
+    }
+  }
+
+  function checkAll(){ checkOstBarColor(); checkNavbarColor(); }
+
+  window.addEventListener('scroll', checkAll, {passive:true});
+  window.addEventListener('resize', checkAll, {passive:true});
+  setInterval(checkAll, 400);
+  checkAll();
+
+  // Re-check ngay khi data-theme thay đổi (người dùng bấm đổi theme)
+  new MutationObserver(checkAll).observe(document.documentElement, {
+    attributes: true, attributeFilter: ['data-theme']
+  });
+  // Re-check khi system color scheme thay đổi
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkAll);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     FOOTER ONLY-ON IMAGE SCROLL ANIMATION
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const img = document.getElementById('footer-onlyon');
+  if(!img) return;
+
+  function detectDarkBg(){
+    const theme = document.documentElement.getAttribute('data-theme');
+    if(theme === 'dark'){
+      img.classList.add('on-dark');
+    } else {
+      img.classList.remove('on-dark');
+    }
+  }
+
+  // Chạy ngay + lắng nghe khi data-theme thay đổi
+  detectDarkBg();
+  const themeObserver = new MutationObserver(detectDarkBg);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // IntersectionObserver: slide up khi scroll tới, lặng xuống khi ra
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        img.classList.add('visible');
+      } else {
+        img.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(img);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     SHINY TOGGLE LOGIC
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const root = document.documentElement;
+  const btn  = document.getElementById('shiny-toggle-btn');
+
+  function applyShiny(on){
+    root.setAttribute('data-shiny', on ? 'on' : 'off');
+    if(btn) btn.classList.toggle('shiny-off', !on);
+    localStorage.setItem('ntz-shiny', on ? 'on' : 'off');
+  }
+
+  window.toggleShiny = function(){
+    const current = root.getAttribute('data-shiny') !== 'off';
+    applyShiny(!current);
+  };
+
+  // Init từ localStorage, mặc định 'off'
+  const saved = localStorage.getItem('ntz-shiny') || 'off';
+  applyShiny(saved === 'on');
+})();
+</script>
+
+</body>
+</html>
