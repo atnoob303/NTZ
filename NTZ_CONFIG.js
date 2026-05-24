@@ -448,6 +448,7 @@ window.NTZ_CONFIG = {
     autoplay:     false,
     tracks: [
       { file: 'COUSER - START CRY.mp3',       name: 'COUSER — START CRY' },
+      { file: 'CHILD OF DEMON.mp3',       name: 'CHILD OF DEMON' },
       // Thêm track mới bên dưới ↓
       // { file: 'NTZ - THEME.mp3',              name: 'NTZ — THEME' },
       // { file: 'LEGEND WARRIORS - BATTLE.mp3', name: 'LEGEND WARRIORS — BATTLE' },
