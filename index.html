@@ -2848,8 +2848,9 @@ setTimeout(()=>{run();},400);
 <!-- OST PLAYER SCRIPT -->
 <script>
 (function(){
-  const MUSIC_FOLDER     = (window.NTZ_CONFIG && window.NTZ_CONFIG.ost.music_folder) || 'assets/music/';
-  const HARDCODED_TRACKS = (window.NTZ_CONFIG && window.NTZ_CONFIG.ost.tracks.map(t => t.file)) || ['COUSER - START CRY.mp3'];
+  // Đọc config SAU khi DOM + NTZ_CONFIG đã ready (tránh race condition)
+  let MUSIC_FOLDER = 'assets/music/';
+  let INITIAL_TRACKS = ['COUSER - START CRY.mp3'];
 
   let tracks = [];
   let currentIdx = 0;
@@ -2887,26 +2888,46 @@ setTimeout(()=>{run();},400);
   function loadTrack(idx, autoplay){
     if(!tracks.length) return;
     currentIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
-    const t = tracks[currentIdx];
-    elTitle.textContent = t.name;
+
+    // Huỷ hoàn toàn audio cũ — tránh event listener cũ fire nhầm sang bài mới
+    if(audio){
+      audio.pause();
+      audio.onloadedmetadata = null;
+      audio.ontimeupdate     = null;
+      audio.onended          = null;
+      audio.onerror          = null;
+      audio.src = '';
+      audio.load();
+    }
+
+    // Cập nhật UI ngay
+    elTitle.textContent = tracks[currentIdx].name;
     elIdx.textContent   = currentIdx + 1;
-    if(audio){ audio.pause(); audio.src = ''; }
-    audio = new Audio(MUSIC_FOLDER + t.file);
+    elSeek.value = 0;
+    elFill.style.width = '0%';
+    elDur.textContent  = '0:00 / 0:00';
+
+    const newAudio = new Audio(MUSIC_FOLDER + tracks[currentIdx].file);
+    audio = newAudio;
     audio.volume = elVol.value / 100;
     audio.muted  = isMuted;
-    audio.addEventListener('loadedmetadata', ()=>{
+
+    audio.onloadedmetadata = function(){
+      if(audio !== newAudio) return;
       elDur.textContent = '0:00 / ' + fmt(audio.duration);
-    });
-    audio.addEventListener('timeupdate', ()=>{
-      if(!isSeeking) {
+    };
+    audio.ontimeupdate = function(){
+      if(audio !== newAudio) return;
+      if(!isSeeking){
         const pct = audio.duration ? (audio.currentTime / audio.duration * 1000) : 0;
         elSeek.value = pct;
         elFill.style.width = (pct / 10) + '%';
       }
       elDur.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
-    });
-    audio.addEventListener('ended', ()=>{
-      if(tracks.length === 1) {
+    };
+    audio.onended = function(){
+      if(audio !== newAudio) return;
+      if(tracks.length === 1){
         // Chỉ 1 bài: tua về đầu, phát lại, GIỮ icon đang phát
         audio.currentTime = 0;
         audio.play().catch(()=>{});
@@ -2914,10 +2935,21 @@ setTimeout(()=>{run();},400);
       } else {
         loadTrack(currentIdx + 1, true);
       }
-    });
-    audio.addEventListener('error', ()=>{ elTitle.textContent = t.name + ' (lỗi load)'; setPlaying(false); });
-    if(autoplay){ audio.play().catch(()=>{}); setPlaying(true); }
-    else setPlaying(false);
+    };
+    audio.onerror = function(){
+      if(audio !== newAudio) return;
+      // Dùng currentIdx tại thời điểm lỗi — không dùng closure bài cũ
+      elTitle.textContent = tracks[currentIdx].name + ' (lỗi load)';
+      setPlaying(false);
+    };
+
+    if(autoplay){
+      audio.play()
+        .then(()=>{ setPlaying(true); })
+        .catch(()=>{ setPlaying(false); });
+    } else {
+      setPlaying(false);
+    }
   }
 
   function setPlaying(v){
@@ -2988,7 +3020,20 @@ setTimeout(()=>{run();},400);
     if(tracks.length) loadTrack(0, false); // mặc định KHÔNG tự phát
   }
 
-  initTracks(HARDCODED_TRACKS);
+  // Đọc tracks SAU khi DOMContentLoaded để NTZ_CONFIG đã được apply đầy đủ
+  function startWithConfig(){
+    if(window.NTZ_CONFIG && window.NTZ_CONFIG.ost){
+      MUSIC_FOLDER   = window.NTZ_CONFIG.ost.music_folder || MUSIC_FOLDER;
+      INITIAL_TRACKS = window.NTZ_CONFIG.ost.tracks.map(t => t.file);
+    }
+    initTracks(INITIAL_TRACKS);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', startWithConfig);
+  } else {
+    startWithConfig();
+  }
 
   // Toggle OST bar — mặc định TẮT
   const ostBar    = document.getElementById('ost-bar');
